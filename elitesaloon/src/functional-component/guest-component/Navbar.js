@@ -157,7 +157,7 @@ const Navbar = () => {
               onClick={() => setShowAccountMenu(!showAccountMenu)}
             >
               <FaUser style={{ fontSize: "12px" }} />
-              <span>Login / Sign In</span>
+              <span>Login </span>
             </button>
 
             {showAccountMenu && (

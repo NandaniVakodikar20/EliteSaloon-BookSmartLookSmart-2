@@ -4,15 +4,16 @@ import { FaClock } from "react-icons/fa";
 import "./GuestServices.css";
 
 const GuestServices = ({ handleProtectedNavigation }) => {
-  const [activeTab, setActiveTab] = useState("female");
+  // 1. Initial tab ko "all" par set kiya
+  const [activeTab, setActiveTab] = useState("all");
 
   const [femaleServices, setFemaleServices] = useState([]);
   const [maleServices, setMaleServices] = useState([]);
   const [bothServices, setBothServices] = useState([]);
+  // Saari services ko ek saath store karne ke liye state
+  const [allServices, setAllServices] = useState([]);
 
-  const [showAllServices, setShowAllServices] =
-    useState(false);
-
+  const [showAllServices, setShowAllServices] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -28,31 +29,28 @@ const GuestServices = ({ handleProtectedNavigation }) => {
         if (response.data && response.data.success) {
           const rawServicesList = response.data.data;
 
+          // Saari services ko state mein save kiya
+          setAllServices(rawServicesList);
+
           // FEMALE ONLY
           const femaleList = rawServicesList.filter(
             (item) =>
               item.servicePreferredGender &&
-              item.servicePreferredGender
-                .trim()
-                .toUpperCase() === "FEMALE",
+              item.servicePreferredGender.trim().toUpperCase() === "FEMALE",
           );
 
           // MALE ONLY
           const maleList = rawServicesList.filter(
             (item) =>
               item.servicePreferredGender &&
-              item.servicePreferredGender
-                .trim()
-                .toUpperCase() === "MALE",
+              item.servicePreferredGender.trim().toUpperCase() === "MALE",
           );
 
           // BOTH ONLY
           const bothList = rawServicesList.filter(
             (item) =>
               item.servicePreferredGender &&
-              item.servicePreferredGender
-                .trim()
-                .toUpperCase() === "BOTH",
+              item.servicePreferredGender.trim().toUpperCase() === "BOTH",
           );
 
           setFemaleServices(femaleList);
@@ -62,15 +60,8 @@ const GuestServices = ({ handleProtectedNavigation }) => {
 
         setLoading(false);
       } catch (err) {
-        console.error(
-          "Error retrieving dynamic guest services:",
-          err,
-        );
-
-        setError(
-          "Failed to load salon services from database.",
-        );
-
+        console.error("Error retrieving dynamic guest services:", err);
+        setError("Failed to load salon services from database.");
         setLoading(false);
       }
     };
@@ -78,24 +69,20 @@ const GuestServices = ({ handleProtectedNavigation }) => {
     fetchGuestServices();
   }, []);
 
-  // STRICT TAB FILTERING
-
+  // TAB FILTERING LOGIC
   let currentServices = [];
 
-  if (activeTab === "female") {
+  if (activeTab === "all") {
+    currentServices = allServices; // Agar 'all' active hai toh saari services dikhao
+  } else if (activeTab === "female") {
     currentServices = femaleServices;
-  }
-
-  if (activeTab === "male") {
+  } else if (activeTab === "male") {
     currentServices = maleServices;
-  }
-
-  if (activeTab === "both") {
+  } else if (activeTab === "both") {
     currentServices = bothServices;
   }
 
   // SHOW ONLY 6 INITIALLY
-
   const displayedServices = showAllServices
     ? currentServices
     : currentServices.slice(0, 6);
@@ -119,71 +106,63 @@ const GuestServices = ({ handleProtectedNavigation }) => {
   return (
     <div className="guest-services-page">
       {/* HEADER */}
-
       <div className="guest-services-header">
-        <h2 className="guest-services-title">
-          Premium Salon Services
-        </h2>
-
+        <h2 className="guest-services-title">Premium Salon Services</h2>
         <p className="guest-services-subtitle">
-          Experience luxury beauty & grooming
-          services
+          Experience luxury beauty & grooming services
         </p>
       </div>
 
       {/* FILTER TABS */}
-
       <div className="filters-container">
         <div className="filter-bar">
+          {/* Naya 'All' Button */}
           <button
-            className={
-              activeTab === "female" ? "active" : ""
-            }
+            className={activeTab === "all" ? "active" : ""}
             onClick={() => {
-              setActiveTab("female");
+              setActiveTab("all");
               setShowAllServices(false);
             }}
           >
-            Female 
+            All
           </button>
-
           <button
-            className={
-              activeTab === "male" ? "active" : ""
-            }
+            className={activeTab === "male" ? "active" : ""}
             onClick={() => {
               setActiveTab("male");
               setShowAllServices(false);
             }}
           >
-            Male 
+            Male
+          </button>
+          <button
+            className={activeTab === "female" ? "active" : ""}
+            onClick={() => {
+              setActiveTab("female");
+              setShowAllServices(false);
+            }}
+          >
+            Female
           </button>
 
-          <button
-            className={
-              activeTab === "both" ? "active" : ""
-            }
+          {/* <button
+            className={activeTab === "both" ? "active" : ""}
             onClick={() => {
               setActiveTab("both");
               setShowAllServices(false);
             }}
           >
-            Both 
-          </button>
+            Both
+          </button> */}
         </div>
       </div>
 
       {/* SERVICES */}
-
       <div className="cards">
         {displayedServices.length > 0 ? (
           displayedServices.map((service) => (
-            <div
-              key={service._id}
-              className="card"
-            >
+            <div key={service._id} className="card">
               {/* IMAGE */}
-
               <div className="image-wrapper">
                 <img
                   src={
@@ -193,65 +172,39 @@ const GuestServices = ({ handleProtectedNavigation }) => {
                   }
                   alt={service.serviceName}
                 />
-
-                <span className="badge">
-                  {
-                    service.servicePreferredGender
-                  }
-                </span>
+                <span className="badge">{service.servicePreferredGender}</span>
               </div>
 
               {/* BODY */}
-
               <div className="card-body">
                 <span className="badge-category">
-                  {service.serviceType ||
-                    "General"}
+                  {service.serviceType || "General"}
                 </span>
 
                 <h3>{service.serviceName}</h3>
 
                 <div className="info">
                   <FaClock />
-
-                  <span>
-                    {service.serviceDuration} min
-                  </span>
+                  <span>{service.serviceDuration} min</span>
                 </div>
 
                 <p className="service-description">
-                  {
-                    service.serviceDescription
-                  }
+                  {service.serviceDescription}
                 </p>
 
                 {service.ownerId && (
                   <p className="service-shop-location">
-                    📍{" "}
-                    {
-                      service.ownerId
-                        .ownerShopName
-                    }{" "}
-                    (
-                    {
-                      service.ownerId
-                        .ownerShopCity
-                    }
-                    )
+                    📍 {service.ownerId.ownerShopName} (
+                    {service.ownerId.ownerShopCity})
                   </p>
                 )}
 
                 <div className="bottom">
-                  <span className="price">
-                    ₹{service.servicePrice}
-                  </span>
-
+                  <span className="price">₹{service.servicePrice}</span>
                   <button
                     className="add"
                     onClick={() =>
-                      handleProtectedNavigation(
-                        "/bookappointment",
-                      )
+                      handleProtectedNavigation("/bookappointment")
                     }
                   >
                     Book Now
@@ -261,32 +214,18 @@ const GuestServices = ({ handleProtectedNavigation }) => {
             </div>
           ))
         ) : (
-          <div className="no-services">
-            No services available
-          </div>
+          <div className="no-services">No services available</div>
         )}
       </div>
 
       {/* VIEW MORE */}
-
       {currentServices.length > 6 && (
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: "40px",
-          }}
-        >
+        <div style={{ textAlign: "center", marginTop: "40px" }}>
           <button
             className="add"
-            onClick={() =>
-              setShowAllServices(
-                !showAllServices,
-              )
-            }
+            onClick={() => setShowAllServices(!showAllServices)}
           >
-            {showAllServices
-              ? "Show Less"
-              : "View More Services"}
+            {showAllServices ? "Show Less" : "View More Services"}
           </button>
         </div>
       )}

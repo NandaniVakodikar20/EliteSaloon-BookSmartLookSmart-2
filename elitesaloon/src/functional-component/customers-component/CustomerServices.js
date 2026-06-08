@@ -3,6 +3,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaClock, FaRupeeSign, FaMapMarkerAlt } from "react-icons/fa";
 
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 const CustomerServices = ({ customer, isPreview }) => {
   const navigate = useNavigate();
 
@@ -12,6 +16,16 @@ const CustomerServices = ({ customer, isPreview }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
+  const sliderSettings = {
+  dots: true,
+  infinite: true,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: true,
+  autoplaySpeed: 2500,
+  arrows: false,
+};
 
   // ✅ FETCH SERVICES
   useEffect(() => {
@@ -137,14 +151,29 @@ const CustomerServices = ({ customer, isPreview }) => {
         <div className="customer-service-grid">
           {displayServices.map((service) => (
             <div key={service._id} className="customer-service-card">
-              <img
-                src={
-                  service.serviceImages?.length > 0
-                    ? `http://localhost:5000/uploads/serviceImages/${service.serviceImages[0]}`
-                    : "http://localhost:5000/uploads/default/defaultService.jpg"
-                }
-                alt={service.serviceName}
-              />
+             <div className="service-slider">
+  <Slider {...sliderSettings}>
+    {service.serviceImages?.length > 0 ? (
+      service.serviceImages.map((img, index) => (
+        <div key={index}>
+          <img
+            src={`http://localhost:5000/uploads/serviceImages/${img}`}
+            alt={service.serviceName}
+            className="slider-image"
+          />
+        </div>
+      ))
+    ) : (
+      <div>
+        <img
+          src="http://localhost:5000/uploads/default/defaultService.jpg"
+          alt="default"
+          className="slider-image"
+        />
+      </div>
+    )}
+  </Slider>
+</div>
 
               <div className="service-body">
                 <span className="shop-name">
@@ -194,7 +223,7 @@ const CustomerServices = ({ customer, isPreview }) => {
             className="view-all-btn"
             onClick={() => navigate("/services")}
           >
-            See More
+           
           </button>
         </div>
       )}

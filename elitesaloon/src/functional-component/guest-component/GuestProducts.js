@@ -37,15 +37,11 @@ const GuestProducts = ({ handleProtectedNavigation }) => {
     const gender = product.productPreferredGender?.trim().toUpperCase();
 
     if (productFilter === "male") {
-      return gender === "MALE" || gender === "BOTH";
+      return gender === "MALE";
     }
 
     if (productFilter === "female") {
-      return gender === "FEMALE" || gender === "BOTH";
-    }
-
-    if (productFilter === "both") {
-      return gender === "BOTH";
+      return gender === "FEMALE";
     }
 
     return true;
@@ -95,17 +91,6 @@ const GuestProducts = ({ handleProtectedNavigation }) => {
           >
             All
           </button>
-
-          <button
-            className={productFilter === "female" ? "active" : ""}
-            onClick={() => {
-              setProductFilter("female");
-              setShowAllProducts(false);
-            }}
-          >
-            Women
-          </button>
-
           <button
             className={productFilter === "male" ? "active" : ""}
             onClick={() => {
@@ -113,17 +98,16 @@ const GuestProducts = ({ handleProtectedNavigation }) => {
               setShowAllProducts(false);
             }}
           >
-            Men
+            Male
           </button>
-
           <button
-            className={productFilter === "both" ? "active" : ""}
+            className={productFilter === "female" ? "active" : ""}
             onClick={() => {
-              setProductFilter("both");
+              setProductFilter("female");
               setShowAllProducts(false);
             }}
           >
-            Both
+            Female
           </button>
         </div>
       </div>

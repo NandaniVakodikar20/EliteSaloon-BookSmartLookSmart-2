@@ -3,22 +3,19 @@ import axios from "axios";
 import CustomerServices from "./CustomerServices";
 
 import CustomerProducts from "./CustomerProducts";
+
 import {
   FaCalendarAlt,
   FaCheck,
   FaStar,
+  FaRupeeSign,
+   FaHourglassHalf,
   FaPlus,
   FaClock,
 } from "react-icons/fa";
 
-const CustomerOverview = ({
-  customer,
-  navigate,
-  setActiveSection,
-}) => {
-
+const CustomerOverview = ({ customer, navigate, setActiveSection }) => {
   const [appointments, setAppointments] = useState([]);
-  
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -26,7 +23,7 @@ const CustomerOverview = ({
         const customerId = localStorage.getItem("customerId");
 
         const res = await axios.get(
-          `http://localhost:5000/appointment/customer-appointments/${customerId}`
+          `http://localhost:5000/appointment/customer-appointments/${customerId}`,
         );
 
         setAppointments(res.data.appointments || []);
@@ -39,43 +36,49 @@ const CustomerOverview = ({
   }, []);
 
   const upcoming = appointments.filter(
-    (a) => a.appointmentStatus?.toLowerCase() === "confirmed"
+    (a) => a.appointmentStatus?.toLowerCase() === "confirmed",
   );
 
   const completed = appointments.filter(
-    (a) => a.appointmentStatus?.toLowerCase() === "completed"
+    (a) => a.appointmentStatus?.toLowerCase() === "completed",
   );
 
+  const pending = appointments.filter(
+    (a) => a.appointmentStatus?.toLowerCase() === "pending",
+  );
+
+  const totalSpent = appointments.reduce(
+  (sum, a) => sum + (a.totalPrice || 0),
+  0
+);
   return (
     <div className="dashboard-content">
-
       {/* ✅ Header with Button */}
-     <div
-  className="content-header"
-  style={{
-    display: "flex",
-    flexDirection: "column",   // ✅ vertical layout
-    alignItems: "flex-start",
-    gap: "10px",               // ✅ spacing between text & button
-  }}
->
-  <h2 style={{ margin: 0 }}>
-    Welcome back, {customer?.customerName || "User"}!
-  </h2>
+      <div
+        className="content-header"
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "10px", //
+        }}
+      >
+        <h2 style={{ margin: 0 }}>
+          Welcome back, {customer?.customerName || "User"}!
+        </h2>
 
-  <button
-    className="action-btn-primary"
-    onClick={() =>
-      navigate("/bookappointment", {
-        state: {
-          customerPincode: customer?.customerPincode || "",
-        },
-      })
-    }
-  >
-    <FaPlus /> Book Appointment
-  </button>
-</div>
+        <button
+          className="action-btn-primary"
+          onClick={() =>
+            navigate("/bookappointment", {
+              state: {
+                customerPincode: customer?.customerPincode || "",
+              },
+            })
+          }
+        >
+          <FaPlus /> Book Appointment
+        </button>
+      </div>
 
       {/* Stats */}
       <div className="stats-grid">
@@ -100,16 +103,25 @@ const CustomerOverview = ({
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon points">
-            <FaStar />
+          <div className="stat-icon pending">
+            < FaHourglassHalf />
           </div>
+
           <div className="stat-info">
-            <span className="stat-value">
-              {customer?.loyaltyPoints || 0}
-            </span>
-            <span className="stat-label">Points</span>
+            <span className="stat-value">{pending.length}</span>
+            <span className="stat-label">Pending</span>
           </div>
         </div>
+        <div className="stat-card">
+  <div className="stat-icon points">
+    <FaRupeeSign />
+  </div>
+
+  <div className="stat-info">
+    <span className="stat-value">₹{totalSpent}</span>
+    <span className="stat-label">Total Spent</span>
+  </div>
+</div>
       </div>
 
       {/* Upcoming Appointments */}
@@ -129,9 +141,7 @@ const CustomerOverview = ({
             upcoming.slice(0, 2).map((apt) => (
               <div key={apt._id} className="appointment-item">
                 <div className="appointment-info">
-                  <h4>
-                    {apt.services?.map((s) => s.serviceName).join(", ")}
-                  </h4>
+                  <h4>{apt.services?.map((s) => s.serviceName).join(", ")}</h4>
 
                   <div className="appointment-details">
                     <span>
@@ -144,12 +154,8 @@ const CustomerOverview = ({
                 </div>
 
                 <div className="appointment-actions">
-                  <span className="appointment-price">
-                    ₹{apt.totalPrice}
-                  </span>
-                  <span className="status-badge upcoming">
-                    Upcoming
-                  </span>
+                  <span className="appointment-price">₹{apt.totalPrice}</span>
+                  <span className="status-badge upcoming">Upcoming</span>
                 </div>
               </div>
             ))
@@ -162,42 +168,35 @@ const CustomerOverview = ({
         </div>
       </div>
 
-<div className="section-card">
-  <div className="section-header">
-    <h3>Popular Services</h3>
+      <div className="section-card">
+        <div className="section-header">
+          <h3>Popular Services</h3>
 
-    <button
-      className="view-all-btn"
-      onClick={() => setActiveSection("services")}
-    >
-      See More
-    </button>
-  </div>
+          <button
+            className="view-all-btn"
+            onClick={() => setActiveSection("services")}
+          >
+            See More
+          </button>
+        </div>
 
-  <CustomerServices
-    customer={customer}
-    isPreview={true}
-  />
-</div>
-{/* Products Preview */}
-<div className="section-card">
-  <div className="section-header">
-    <h3>Recommended Products</h3>
+        <CustomerServices customer={customer} isPreview={true} />
+      </div>
+      {/* Products Preview */}
+      <div className="section-card">
+        <div className="section-header">
+          <h3>Recommended Products</h3>
 
-    <button
-      className="view-all-btn"
-      onClick={() => navigate("/shop")}
-    >
-      See More
-    </button>
-  </div>
+          <button
+            className="view-all-btn"
+            onClick={() => setActiveSection("products")}
+          >
+            See More
+          </button>
+        </div>
 
-  <CustomerProducts
-    customer={customer}
-    isPreview={true}
-  />
-</div>
-
+        <CustomerProducts customer={customer} isPreview={true} />
+      </div>
     </div>
   );
 };

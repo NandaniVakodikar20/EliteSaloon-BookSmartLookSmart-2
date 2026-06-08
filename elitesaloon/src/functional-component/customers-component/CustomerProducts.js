@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation  } from "react-router-dom";
 
 import { FaRupeeSign } from "react-icons/fa";
 
 const CustomerProducts = ({ customer, isPreview }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+ const customerData = location.state?.customer;
 
-  const pincode = customer?.customerPincode
-    ? Number(customer.customerPincode)
+const pincode = customer?.customerPincode
+  ? Number(customer.customerPincode)
+  : customerData?.customerPincode
+    ? Number(customerData.customerPincode)
     : "";
-
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
 
   // 🔥 FETCH API
   useEffect(() => {
@@ -42,23 +46,9 @@ const CustomerProducts = ({ customer, isPreview }) => {
     fetchProducts();
   }, [pincode]);
 
-  // 🔥 BUY NOW
-  const handleBuyNow = (product) => {
-    navigate("/productcheckout", {
-      state: {
-        productId: product._id,
-        productName: product.productName,
-        productPrice: product.productPrice,
 
-        ownerId: product.ownerId?._id,
-        shopName: product.ownerId?.ownerShopName,
-        ownerEmail: product.ownerId?.ownerEmail,
-        address: `${product.ownerId?.ownerShopCity}, ${product.ownerId?.ownerShopPincode}`,
-      },
-    });
-  };
 
-  // ⭐ PREVIEW MODE (ONLY 4 PRODUCTS)
+
   const displayProducts = isPreview
     ? products.slice(0, 4)
     : products;
@@ -133,16 +123,20 @@ const CustomerProducts = ({ customer, isPreview }) => {
       )}
 
       {/* SEE MORE (ONLY IN PREVIEW) */}
-      {isPreview && (
-        <div style={{ textAlign: "right", marginTop: "10px" }}>
-          <button
-            className="view-all-btn"
-            onClick={() => navigate("/shop")}
-          >
-            See More
-          </button>
-        </div>
-      )}
+     {isPreview && (
+  <div style={{ textAlign: "right", marginTop: "10px" }}>
+    <button
+  className="view-all-btn"
+  onClick={() =>
+    navigate("/products", {
+      state: { customer },
+    })
+  }
+>
+ 
+</button>
+  </div>
+)}
 
     </div>
   );

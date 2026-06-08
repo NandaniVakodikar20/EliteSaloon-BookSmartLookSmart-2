@@ -19,7 +19,8 @@ import CustomerProfileSetup from "./functional-component/customers-component/Cus
 import ResetPassword from "./functional-component/customers-component/ResetPassword";
 import CustomerDashboard from "./functional-component/customers-component/CustomerDashboard";
 import CustomerBookingForm from "./functional-component/customers-component/CustomerBookingForm";
- 
+import CustomerServices from "./functional-component/customers-component/CustomerServices";
+ import CustomerProducts from "./functional-component/customers-component/CustomerProducts";
 
 import ForgotPassword from "./functional-component/customers-component/ForgotPassword";
 import ResetOtp from "./functional-component/customers-component/ResetOtp";
@@ -76,7 +77,10 @@ function AppContent() {
     "bookappointment",
     "/selectservices",
    "/reschedulservice", 
-    "/appointment-details"
+    "/appointment-details",
+    "/services",
+    "/products",
+  
   ];
 
   const showNavbar = !hideNavbarRoutes.includes(location.pathname);
@@ -98,7 +102,8 @@ function AppContent() {
         <Route path="/profilesetup" element={<CustomerProfileSetup />} />
         <Route path="/customerdashboard" element={<CustomerDashboard />} />
         <Route path="/bookappointment" element={<CustomerBookingForm />} />
-
+        <Route path="/services" element={<CustomerServices />}/>
+<Route path="/products" element ={<CustomerProducts/>}/>
         <Route path="/OtpVerify" element={<OtpVerify />} />
 
         <Route path="/selectservices" element={<SelectServices />} />
