@@ -294,6 +294,7 @@ const CustomerRegistration = () => {
 
             <div className="form-grid">
               <div className="form-group">
+                  <label>Customer Name</label>
                 <input
                   name="customerName"
                   placeholder="Customer Name"
@@ -304,6 +305,7 @@ const CustomerRegistration = () => {
               </div>
 
               <div className="form-group">
+                  <label>Email Address</label>
                 <input
                   name="customerEmail"
                   placeholder="Email"
@@ -314,6 +316,7 @@ const CustomerRegistration = () => {
               </div>
 
               <div className="form-group">
+                 <label>Mobile Number</label>
                 <PhoneInput
                   country="in"
                   value={form.customerMobile}
@@ -328,6 +331,7 @@ const CustomerRegistration = () => {
               </div>
 
               <div className="form-group">
+                 <label>Gender</label>
                 <select
                   name="customerGender"
                   value={form.customerGender}
@@ -342,6 +346,7 @@ const CustomerRegistration = () => {
               </div>
 
               <div className="form-group">
+                 <label>Date of Birth</label>
              <DatePicker
   selected={form.customerDob ? new Date(form.customerDob) : null}
   onChange={(date) =>
@@ -369,6 +374,7 @@ const CustomerRegistration = () => {
             <h3>Address</h3>
 
             <div className="form-grid">
+              
               <input
                 name="customerStreet"
                 placeholder="Street"
@@ -425,6 +431,7 @@ const CustomerRegistration = () => {
 
             <div className="form-grid">
               <div className="form-group">
+                  <label>Username</label>
                 <input
                   name="customerUsername"
                   placeholder="Username"
@@ -436,6 +443,7 @@ const CustomerRegistration = () => {
               </div>
 
               <div className="password-group">
+                 <label>Password</label>
                 <input
                   type={showPwd ? "text" : "password"}
                   name="customerPassword"
@@ -452,6 +460,7 @@ const CustomerRegistration = () => {
               </div>
 
               <div className="password-group">
+                  <label>Confirm Password</label>
                 <input
                   type={showCpwd ? "text" : "password"}
                   name="customerConfirmPassword"

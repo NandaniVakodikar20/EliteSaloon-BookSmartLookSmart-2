@@ -206,9 +206,12 @@ const Products = ({
                       })
                     }
                   >
+                    <option value="SHAMPOO">Shampoo</option>
                     <option value="HAIRGEL">Hair Gel</option>
                     <option value="FACEWASH">Face Wash</option>
                     <option value="SUNSCREAM">Sunscreen</option>
+                    <option value="CONDITIONER">Conditioner</option>
+                     <option value="HAIR_SERUM">Hair Serum</option>
                   </select>
                 </div>
 

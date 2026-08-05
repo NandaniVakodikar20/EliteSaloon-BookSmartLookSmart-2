@@ -16,7 +16,7 @@ const ProductSchema = new mongoose.Schema({
 
     productType:{
         type:String,
-        enum:["HAIRGEL","FACEWASH","SUNSCREAM"],
+        enum:["HAIRGEL","FACEWASH","SUNSCREAM","CONDITIONER","HAIR_SERUM","SHAMPOO"],
         required:true
     },
 

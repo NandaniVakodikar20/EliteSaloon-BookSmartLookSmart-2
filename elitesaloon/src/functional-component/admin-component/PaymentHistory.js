@@ -68,7 +68,7 @@ const PaymentHistory = () => {
               <th>Amount</th>
               <th>Status</th>
               <th>Date</th>
-              <th>Action</th>
+              {/* <th>Action</th> */}
             </tr>
           </thead>
           <tbody>
@@ -107,9 +107,9 @@ const PaymentHistory = () => {
                     </span>
                   </td>
                   <td className="text-muted">{formatDate(pay.created_at)}</td>
-                  <td>
+                  {/* <td>
                     <button className="btn-view">Details</button>
-                  </td>
+                  </td> */}
                 </tr>
               ))
             ) : (
