@@ -315,6 +315,7 @@ const OwnerRegistration = () => {
                   placeholder="Street"
                   value={form.ownerShopStreet}
                   onChange={handleChange}
+
                 />
                 <small className="error-text">{errors.ownerShopStreet}</small>
               </div>
