@@ -7,6 +7,20 @@ import { FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import useLoader from "../../hooks/useLoader";
 import CommonLoader from "../../components/CommonLoader";
+import L from "leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  useMapEvents,
+  Marker,
+  Popup,
+} from "react-leaflet";
+
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+import "leaflet/dist/leaflet.css";
 
 const OwnerRegistration = () => {
   const { loading, startLoading, stopLoading } = useLoader();
@@ -26,10 +40,223 @@ const OwnerRegistration = () => {
     ownerShopBlock: "",
     ownerShopDistrict: "",
     ownerShopState: "",
+    ownerLatitude: "",
+    ownerLongitude: "",
   });
 
   const [errors, setErrors] = useState({});
+  const [showPopup, setShowPopup] = useState(false);
 
+  const [showMap, setShowMap] = useState(false);
+
+  const [location, setLocation] = useState({
+    latitude: "",
+    longitude: "",
+  });
+
+  const locationIcon = new L.Icon({
+    iconUrl: markerIcon,
+    iconRetinaUrl: markerIcon2x,
+    shadowUrl: markerShadow,
+
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
+  });
+const getAddressFromLocation = async (
+  lat,
+  lng,
+  setForm,
+  setPostOffices
+) => {
+  try {
+    console.log("Getting address...");
+    console.log("Latitude:", lat);
+    console.log("Longitude:", lng);
+
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&addressdetails=1`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    console.log("Address Data:", data);
+
+    if (!data.address) {
+      Swal.fire(
+        "Address Not Found",
+        "Location mil gayi hai, lekin address details nahi mil paayi.",
+        "warning"
+      );
+      return;
+    }
+
+    const address = data.address;
+
+    const street =
+      address.road ||
+      address.neighbourhood ||
+      address.suburb ||
+      "";
+
+    const pincode = address.postcode || "";
+
+    const city =
+      address.city ||
+      address.town ||
+      address.village ||
+      address.municipality ||
+      "";
+
+    const district =
+      address.state_district ||
+      address.county ||
+      "";
+
+    const state = address.state || "";
+
+    console.log("Street:", street);
+    console.log("Pincode:", pincode);
+    console.log("City:", city);
+    console.log("District:", district);
+    console.log("State:", state);
+
+    // Address auto-fill
+    setForm((prev) => ({
+      ...prev,
+      ownerLatitude: lat,
+      ownerLongitude: lng,
+      ownerShopStreet: street,
+      ownerShopPincode: pincode,
+      ownerShopCity: city,
+      ownerShopDistrict: district,
+      ownerShopState: state,
+    }));
+
+    // ================= PINCODE API =================
+
+    if (/^\d{6}$/.test(pincode)) {
+      console.log("Getting Post Office Details...");
+
+      const pinResponse = await fetch(
+        `https://api.postalpincode.in/pincode/${pincode}`
+      );
+
+      const pinData = await pinResponse.json();
+
+      console.log("Pincode Data:", pinData);
+
+      if (
+        pinData[0] &&
+        pinData[0].Status === "Success" &&
+        pinData[0].PostOffice
+      ) {
+        const offices = pinData[0].PostOffice;
+
+        setPostOffices(offices);
+
+        const first = offices[0];
+
+        setForm((prev) => ({
+          ...prev,
+
+          ownerLatitude: lat,
+          ownerLongitude: lng,
+
+          ownerShopPincode: pincode,
+
+          ownerShopBlock: first?.Name || "",
+
+          ownerShopCity:
+            first?.Block ||
+            prev.ownerShopCity ||
+            city,
+
+          ownerShopDistrict:
+            first?.District ||
+            prev.ownerShopDistrict ||
+            district,
+
+          ownerShopState:
+            first?.State ||
+            prev.ownerShopState ||
+            state,
+        }));
+      }
+    }
+  } catch (error) {
+    console.error("Address Error:", error);
+
+    Swal.fire(
+      "Address Error",
+      "Location mil gayi hai, lekin address details nahi mil paayi.",
+      "warning"
+    );
+  }
+};
+function LocationMarker({
+  locationIcon,
+  setForm,
+  setLocation,
+  setPostOffices,
+  setShowMap,
+}) {
+  const [position, setPosition] = useState(null);
+
+  useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+
+      console.log("MAP CLICKED");
+      console.log("Latitude:", lat);
+      console.log("Longitude:", lng);
+
+      // Marker
+      setPosition(e.latlng);
+
+      // Save location
+      setLocation({
+        latitude: lat,
+        longitude: lng,
+      });
+
+      // Save lat/lng
+      setForm((prev) => ({
+        ...prev,
+        ownerLatitude: lat,
+        ownerLongitude: lng,
+      }));
+
+      // Get address
+      getAddressFromLocation(
+        lat,
+        lng,
+        setForm,
+        setPostOffices
+      ).then(() => {
+        setShowMap(false);
+      });
+    },
+  });
+
+  return position ? (
+    <Marker position={position} icon={locationIcon}>
+      <Popup>
+        <b>Selected Location</b>
+        <br />
+        Latitude: {position.lat}
+        <br />
+        Longitude: {position.lng}
+      </Popup>
+    </Marker>
+  ) : null;
+}
   const [postOffices, setPostOffices] = useState([]);
 
   /* ================= VALIDATION ================= */
@@ -57,6 +284,9 @@ const OwnerRegistration = () => {
       err.shopInsidePhoto = "Shop inside photo required";
 
     if (!form.ownerShopStreet) err.ownerShopStreet = "Street required";
+    if (!form.ownerLatitude || !form.ownerLongitude) {
+      err.location = "Shop location required";
+    }
 
     if (!form.ownerShopPincode || form.ownerShopPincode.length !== 6)
       err.ownerShopPincode = "Valid pincode required";
@@ -68,55 +298,180 @@ const OwnerRegistration = () => {
     return Object.keys(err).length === 0;
   };
 
-  /* ================= HANDLE CHANGE ================= */
+  /* ================= GPS Handle ================== */
+const handleGPS = () => {
+  Swal.fire({
+    title: "Enable Location Service?",
+    text: "To use GPS, your browser needs permission to access your laptop's location.",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "OK",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (!result.isConfirmed) return;
 
-  const handleChange = async (e) => {
-    const { name, value, files } = e.target;
+    if (!navigator.geolocation) {
+      Swal.fire(
+        "Not Supported",
+        "Geolocation is not supported by your browser.",
+        "error"
+      );
+      return;
+    }
 
-    if (name === "ownerShopPincode" && !/^\d*$/.test(value)) return;
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
+        console.log("GPS Latitude:", lat);
+        console.log("GPS Longitude:", lng);
 
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
+        // Save location
+        setLocation({
+          latitude: lat,
+          longitude: lng,
+        });
 
-    /* PINCODE API */
+        // Save lat/lng
+        setForm((prev) => ({
+          ...prev,
+          ownerLatitude: lat,
+          ownerLongitude: lng,
+        }));
 
-    if (name === "ownerShopPincode" && value.length === 6) {
-      try {
-        const res = await fetch(
-          `https://api.postalpincode.in/pincode/${value}`,
+        // Get address automatically
+        await getAddressFromLocation(
+          lat,
+          lng,
+          setForm,
+          setPostOffices
         );
 
-        const data = await res.json();
+        // Close popup
+        setShowPopup(false);
 
-        if (data[0].Status === "Success") {
-          const offices = data[0].PostOffice;
+        Swal.fire({
+          title: "Location Found!",
+          text: "Location and address filled successfully.",
+          icon: "success",
+        });
+      },
 
-          setPostOffices(offices);
+      (error) => {
+        console.log("GPS Error:", error);
 
-          const first = offices[0];
+        Swal.fire({
+          title: "Location Permission Required",
+          text: "Please allow location access from your browser.",
+          icon: "warning",
+        });
+      },
 
-          setForm((prev) => ({
-            ...prev,
-            ownerShopDistrict: first?.District || "",
-            ownerShopState: first?.State || "",
-            ownerShopCity: "",
-            ownerShopBlock: "",
-          }));
-        } else {
-          Swal.fire("Invalid Pincode", "", "error");
-        }
-      } catch {
-        Swal.fire("API Error", "", "error");
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
+    );
+  });
+};
+  /* ================= HANDLE CHANGE ================= */
+
+const handleChange = async (e) => {
+  const { name, value, files } = e.target;
+
+  // Pincode me sirf numbers allow
+  if (name === "ownerShopPincode" && !/^\d*$/.test(value)) {
+  return;
+}
+
+  // Normal field update
+  setForm((prev) => ({
+    ...prev,
+    [name]: files ? files[0] : value,
+  }));
+
+  // Error remove
+  setErrors((prev) => ({
+    ...prev,
+    [name]: "",
+  }));
+
+  // =========================
+  // PINCODE AUTO FILL
+  // =========================
+
+  if (name === "ownerShopPincode" && value.length === 6) {
+    try {
+      console.log("Searching Pincode:", value);
+
+      const response = await fetch(
+        `https://api.postalpincode.in/pincode/${value}`
+      );
+
+      const data = await response.json();
+
+      console.log("Pincode API Response:", data);
+
+      if (
+        data[0] &&
+        data[0].Status === "Success" &&
+        data[0].PostOffice
+      ) {
+        const offices = data[0].PostOffice;
+
+        console.log("Post Offices:", offices);
+
+        setPostOffices(offices);
+
+        const first = offices[0];
+
+        setForm((prev) => ({
+          ...prev,
+
+          ownerShopPincode: value,
+
+          // First post office
+          ownerShopBlock: first?.Name || "",
+
+          // Block ko City me use kar rahe hain
+          ownerShopCity: first?.Block || "",
+
+          ownerShopDistrict: first?.District || "",
+
+          ownerShopState: first?.State || "",
+        }));
+
+      } else {
+        setPostOffices([]);
+
+        setForm((prev) => ({
+          ...prev,
+          ownerShopBlock: "",
+          ownerShopCity: "",
+          ownerShopDistrict: "",
+          ownerShopState: "",
+        }));
+
+        Swal.fire(
+          "Invalid Pincode",
+          "Please enter a valid Indian pincode.",
+          "error"
+        );
+      }
+
+    } catch (error) {
+      console.error("Pincode API Error:", error);
+
+      Swal.fire(
+        "API Error",
+        "Unable to fetch pincode details.",
+        "error"
+      );
     }
-  };
+  }
+};
 
   /* ================= SUBMIT ================= */
 
@@ -159,13 +514,10 @@ const OwnerRegistration = () => {
 
       startLoading();
 
-      const response = await fetch(
-        "http://localhost:5000/owner/register",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      const response = await fetch("http://localhost:5000/owner/register", {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
 
@@ -203,10 +555,7 @@ const OwnerRegistration = () => {
       <CommonLoader loading={loading} />
 
       <div className="form-wrapper">
-        <FaTimes 
-  className="close-btn"
-  onClick={() => navigate(-1)}
-/>
+        <FaTimes className="close-btn" onClick={() => navigate(-1)} />
         <h2>EliteSalon Owner Registration</h2>
 
         <form onSubmit={handleSubmit}>
@@ -309,16 +658,40 @@ const OwnerRegistration = () => {
             <h3>Shop Address</h3>
 
             <div className="form-grid">
-              <div className="form-group">
+              {/* Street */}
+              <div className="form-group" style={{ position: "relative" }}>
                 <input
                   name="ownerShopStreet"
                   placeholder="Street"
                   value={form.ownerShopStreet}
                   onChange={handleChange}
+                  onClick={() => setShowPopup(true)}
                 />
+                <small className="error-text">{errors.ownerShopStreet}</small>
+                <small className="error-text">{errors.location}</small>
+
+                {showPopup && (
+                  <div className="location-popup">
+                    <button type="button" onClick={handleGPS}>
+                      📍 Use GPS
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPopup(false);
+                        setShowMap(true);
+                      }}
+                    >
+                      🗺 Choose Location
+                    </button>
+                  </div>
+                )}
+
                 <small className="error-text">{errors.ownerShopStreet}</small>
               </div>
 
+              {/* Pincode */}
               <div className="form-group">
                 <input
                   name="ownerShopPincode"
@@ -330,6 +703,7 @@ const OwnerRegistration = () => {
                 <small className="error-text">{errors.ownerShopPincode}</small>
               </div>
 
+              {/* Block */}
               <div className="form-group">
                 <select
                   name="ownerShopBlock"
@@ -372,6 +746,46 @@ const OwnerRegistration = () => {
             {loading ? "Please wait..." : "Apply"}
           </button>
         </form>
+
+        {/* ================= MAP MODAL ================= */}
+
+        {showMap && (
+          <div className="map-modal">
+            <div className="map-container">
+              <div className="map-header">
+                <h3>Select Shop Location</h3>
+
+                <button className="map-close" onClick={() => setShowMap(false)}>
+                  ✕
+                </button>
+              </div>
+
+              <div className="map-body">
+                <MapContainer
+                  center={[21.1702, 72.8311]}
+                  zoom={13}
+                  style={{ width: "100%", height: "100%" }}
+                >
+                 <TileLayer
+                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+
+                  <LocationMarker
+                    locationIcon={locationIcon}
+                    setForm={setForm}
+                    setLocation={setLocation}
+                    setPostOffices={setPostOffices}
+                    setShowMap={setShowMap}
+                  />
+                </MapContainer>
+              </div>
+
+              <div className="map-footer">
+                Click anywhere on the map to select your location.
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

@@ -49,6 +49,15 @@ const ownerSchema = new mongoose.Schema({
         type: String, required: true
     },
 
+    
+    ownerLatitude: {
+        type: Number, required: true
+    },
+
+    ownerLongitude: {
+        type: Number, required: true
+    },
+
     ownerOTP : {
         type: String, default: null
     },
