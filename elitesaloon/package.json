@@ -11,6 +11,7 @@
     "bootstrap": "^5.3.8",
     "classnames": "^2.5.1",
     "datepicker": "^0.0.0",
+    "jwt-decode": "^4.0.0",
     "prop-types": "^15.8.1",
     "react": "^19.2.4",
     "react-bootstrap": "^2.10.10",

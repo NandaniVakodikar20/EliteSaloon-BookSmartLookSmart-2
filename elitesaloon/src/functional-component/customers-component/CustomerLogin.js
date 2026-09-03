@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { FaEye, FaEyeSlash,FaTimes  } from "react-icons/fa";
+import {jwtDecode} from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import "../../components/Form.css";
 import useLoader from "../../hooks/useLoader";
@@ -72,25 +73,28 @@ const CustomerLogin = () => {
       });
 
       const data = await response.json();
-      const customer = data.customer;
-      console.log("Customer Data:", customer);
+      
+      const token = jwtDecode(data.token);
+      const customerUsername = token.customerUsername;
+      // console.log("Customer Data:", customer);
 
       // console.log("Find customer :", data.message);
 
       if (response.ok) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("customerId", customer._id);
+        localStorage.setItem("token", data.token);
+        // localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("customerId", token.customerId);
+        // localStorage.setItem("customer", JSON.stringify(customer));
 
-        localStorage.setItem("customer", JSON.stringify(customer));
         Swal.fire({
           icon: "success",
           title: "Login Successful 🎉",
-          text: "Welcome " + customer.customerUsername,
+          text: "Welcome " + customerUsername,
         });
 
-        console.log("Login Success:", data.customer);
-
-        navigate("/customerdashboard", { state: { customer }, replace: true  });
+        console.log("Login Success:", token.customerUsername);
+        navigate("/customerdashboard",{ replace : true});
+        // navigate("/customerdashboard", { state: { customer }, replace: true  });
       } else {
         Swal.fire({
           icon: "error",

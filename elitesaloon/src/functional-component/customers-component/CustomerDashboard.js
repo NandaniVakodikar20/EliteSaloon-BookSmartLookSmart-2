@@ -27,17 +27,66 @@ const CustomerDashboard = () => {
     : "overview")
 );
 
-  const [customer, setCustomer] = useState(() => {
-    const stored = localStorage.getItem("customer");
-    return location.state?.customer || (stored ? JSON.parse(stored) : {});
-  });
+  // const [customer, setCustomer] = useState(() => {
+  //   const stored = localStorage.getItem("customer");
+  //   return location.state?.customer || (stored ? JSON.parse(stored) : {});
+  // });
 
-  
+const [customer, setCustomer] = useState({});
+
+// const [customer, setCustomer] = useState(null);
+const [loading, setLoading] = useState(true);
+
 useEffect(() => {
 
+    const token = localStorage.getItem("token");
+   
+    if (!token) {
+        navigate("/unauthorized");
+        return;
+    }
+
+    fetch("http://localhost:5000/customer/profile", {
+       method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+    .then(async response => {
+
+        const data = await response.json();
+        console.log("Protected API Response:", data);
+        console.log("Protected API Response:", response.status);
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            navigate("/unauthorized");
+            return;
+        }
+        
+        console.log("Customer API Response:", data);
+        if(data.customer != null){
+          setCustomer(data.customer);
+          setLoading(false);    
+        }
+
+        return data;
+
+    })
+    .catch(error => {
+        console.error(error);
+        setLoading(false);
+        navigate("/error");
+    });
+
+}, [navigate]);
+  
+useEffect(() => {
+        
   if (location.state?.activeSection) {
     setActiveSection(location.state.activeSection);
   }
+
+
 
   if (location.state?.openReschedule) {
     setActiveSection("bookappointments");
@@ -46,14 +95,14 @@ useEffect(() => {
 }, [location.state]);
 
   // Session check
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const customerId = localStorage.getItem("customerId");
+  // useEffect(() => {
+  //   const isLoggedIn = localStorage.getItem("isLoggedIn");
+  //   const customerId = localStorage.getItem("customerId");
 
-    if (!isLoggedIn || !customerId) {
-      navigate("/customerlogin");
-    }
-  }, [navigate]);
+  //   if (!isLoggedIn || !customerId) {
+  //     navigate("/customerlogin");
+  //   }
+  // }, [navigate]);
 
   const feedbacks = [
     {
@@ -108,7 +157,7 @@ useEffect(() => {
           <button
             className={`nav-item ${activeSection === "products" ? "active" : ""}`}
             onClick={() => setActiveSection("products")}
-          >
+          >s
             <FaShoppingBag /> Products
           </button>
 
@@ -161,14 +210,14 @@ useEffect(() => {
         return <CustomerOverview />;
     }
   };
-
-
+  
   return (
     <div className="customer-dashboard">
       {renderSidebar()}
       <div className="dashboard-main">{renderContent()}</div>
     </div>
   );
+  
 };
 
 export default CustomerDashboard;

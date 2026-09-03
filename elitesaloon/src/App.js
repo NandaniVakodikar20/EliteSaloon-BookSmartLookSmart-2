@@ -49,6 +49,10 @@ import OwnerAppointmentDetails from "./functional-component/owners-component/Own
 import AdminDashboard from "./functional-component/admin-component/AdminDashboard";
 import StaffOtpVerify from "./functional-component/owners-component/StaffOtpVerify";
 
+//Error-pages
+import Unauthorized from "./functional-component/auth-error-pages/Unauthorized";
+import ErrorPage from "./functional-component/auth-error-pages/ErrorPage";
+
 function AppContent() {
   const location = useLocation();
 
@@ -131,6 +135,10 @@ function AppContent() {
         <Route path="/staffotpverify" element={<StaffOtpVerify />} />
 
         <Route path="/ownerresetpassword" element={<OwnerResetPassword />} />
+
+        {/* ERROR PAGES */}
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/error" element={<ErrorPage />} />
       </Routes>
     </>
   );

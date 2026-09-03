@@ -18,20 +18,63 @@ const CustomerOverview = ({ customer, navigate, setActiveSection }) => {
   const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const customerId = localStorage.getItem("customerId");
+    // const fetchAppointments = async () => {
+    //   try {
+    //     const customerId = localStorage.getItem("customerId");
 
-        const res = await axios.get(
-          `http://localhost:5000/appointment/customer-appointments/${customerId}`,
-        );
+    //     const res = await axios.get(
+    //       `http://localhost:5000/appointment/customer-appointments/${customerId}`,
+    //     );
 
-        setAppointments(res.data.appointments || []);
-      } catch (error) {
+    //     setAppointments(res.data.appointments || []);
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // };
+
+     const fetchAppointments = async () => {
+
+    const token = localStorage.getItem("token");
+   
+    if (!token) {
+        navigate("/unauthorized");
+        return;
+    }
+
+    fetch("http://localhost:5000/appointment/customer-appointments", {
+       method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+    .then(async response => {
+
+        const data = await response.json();
+        console.log("Protected Appointment API Response:", data);
+        console.log("Protected Appointment API Response:", response.status);
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            navigate("/unauthorized");
+            return;
+        }
+        
+        console.log("Appointment API Response:", data);
+        if(data.appointments != null){
+           setAppointments(data.appointments || []);
+          // setMyAppointments(data.appointments || []);
+          // setLoading(false);    
+        }
+
+        return data;
+
+    })
+    .catch(error => {
         console.error(error);
-      }
-    };
+        // setLoading(false);
+        navigate("/error");
+    });
 
+  };
     fetchAppointments();
   }, []);
 

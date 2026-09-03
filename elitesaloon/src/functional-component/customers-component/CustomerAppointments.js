@@ -30,16 +30,59 @@ const CustomerAppointments = () => {
   }, [location.state, navigate]);
 
   // ✅ 2. Fetch All Appointments
-  const fetchAppointments = async () => {
-    try {
-      const customerId = localStorage.getItem("customerId");
-      const res = await axios.get(
-        `http://localhost:5000/appointment/customer-appointments/${customerId}`
-      );
-      setMyAppointments(res.data.appointments || []);
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
+  // const fetchAppointments = async () => {
+  //   try {
+  //     const customerId = localStorage.getItem("customerId");
+  //     const res = await axios.get(
+  //       `http://localhost:5000/appointment/customer-appointments/${customerId}`
+  //     );
+  //     setMyAppointments(res.data.appointments || []);
+  //   } catch (error) {
+  //     console.error("Error fetching appointments:", error);
+  //   }
+  // };
+
+   const fetchAppointments = async () => {
+
+    const token = localStorage.getItem("token");
+   
+    if (!token) {
+        navigate("/unauthorized");
+        return;
     }
+
+    fetch("http://localhost:5000/appointment/customer-appointments", {
+       method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+    .then(async response => {
+
+        const data = await response.json();
+        console.log("Protected Appointment API Response:", data);
+        console.log("Protected Appointment API Response:", response.status);
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            navigate("/unauthorized");
+            return;
+        }
+        
+        console.log("Appointment API Response:", data);
+        if(data.appointments != null){
+          setMyAppointments(data.appointments || []);
+          // setLoading(false);    
+        }
+
+        return data;
+
+    })
+    .catch(error => {
+        console.error(error);
+        // setLoading(false);
+        navigate("/error");
+    });
+
   };
 
   useEffect(() => {

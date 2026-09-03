@@ -7,6 +7,7 @@ const { customerFindUsingEmail } = require("./CustomerOptimizeCode");
 const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
 const generateOTP = require("../../utils/generateOTP");
 const AppointmentModel = require("../../models/AppointmentModel");
+const jwt = require("jsonwebtoken");
 
 /**
  * Author : Yogesh Badgujar
@@ -164,9 +165,19 @@ exports.loginCustomer = async (req, res) => {
         customer.customerVerified &&
         customer.customerStatus === "active"
       ) {
+
+        const token = jwt.sign(
+          {
+              // customer : customer.toObject(),
+                customerId: customer._id,
+                customerUsername : customer.customerUsername 
+              },
+          process.env.JWT_SECRET_KEY,{ expiresIn: "1h" }
+        );
+
         res.status(200).json({
-          message: "Customer Login Successful",
-          customer: customer.toObject(),
+          message: "Customer Login Successful and JWT Token Generated",
+          token: token
         });
       } else if (customer.customerStatus === "deactive") {
         res.status(401).json({
@@ -388,7 +399,7 @@ exports.uploadProfileImage = async (req, res) => {
 
 exports.updateCustomerProfile = async (req, res) => {
   try {
-    const customerId = req.params.id;
+    const customerId = req.data.customerId;
 
     const {
       customerName,
@@ -443,7 +454,7 @@ exports.updateCustomerProfile = async (req, res) => {
 
 exports.changeCustomerPassword = async (req, res) => {
   try {
-    const customerId = req.params.id;
+    const customerId = req.data.customerId;
 
     const { currentPassword, newPassword } = req.body;
 
@@ -541,7 +552,7 @@ exports.getProductsForCustomerByPin = async (req, res) => {
   try {
     const { customerPincode } = req.params;
 
-    if (!customerPincode) {
+    if (!customerPincode) {0
       return res.status(400).json({
         success: false,
         message: "Customer pincode is required",
@@ -698,4 +709,35 @@ exports.resendCustomerOtp = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+exports.customerProfile = async (req, res) => { 
+
+  console.log("Authenticate Profile .... ");
+  const customerId = req.data.customerId;
+   
+  const customer = await CustomerModel.findById(customerId);
+  console.log("Customer Data print :", customer);
+
+const customerData = {
+    customerName: customer.customerName,
+    customerEmail: customer.customerEmail,
+    customerMobile: customer.customerMobile,
+    customerGender: customer.customerGender,
+    customerDOB: customer.customerDOB,
+    customerStreet: customer.customerStreet,
+    customerPincode: customer.customerPincode,
+    customerCity: customer.customerCity,
+    customerBlock: customer.customerBlock,
+    customerDistrict: customer.customerDistrict,
+    customerState: customer.customerState,
+    customerUsername: customer.customerUsername,
+    customerProfileImage: customer.customerProfileImage
+};
+
+  return res.status(200).json({
+        message: "Authenticate Profile .... ",
+        customer : customerData
+  });
+
 };
