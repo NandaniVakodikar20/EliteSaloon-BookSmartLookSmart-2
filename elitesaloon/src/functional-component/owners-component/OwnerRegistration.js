@@ -522,7 +522,7 @@ const OwnerRegistration = () => {
                       type="button"
                       onClick={handleGPS}
                     >
-                      📍 Use GPS
+                      📍 Use Current Location
                     </button>
 
                     <button

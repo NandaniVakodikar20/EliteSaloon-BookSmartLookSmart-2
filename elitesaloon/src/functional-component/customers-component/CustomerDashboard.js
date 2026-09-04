@@ -221,7 +221,7 @@ useEffect(() => {
           <button
             className={`nav-item ${activeSection === "products" ? "active" : ""}`}
             onClick={() => setActiveSection("products")}
-          >
+          >s
             <FaShoppingBag /> Products
           </button>
 
@@ -274,7 +274,6 @@ useEffect(() => {
         return <CustomerOverview />;
     }
   };
-
   return (
   <div className="customer-dashboard">
 
