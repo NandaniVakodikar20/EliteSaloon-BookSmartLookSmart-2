@@ -7,6 +7,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+
 const CustomerServices = ({ customer, isPreview }) => {
   const navigate = useNavigate();
 
@@ -16,6 +17,8 @@ const CustomerServices = ({ customer, isPreview }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
+
+  
   const sliderSettings = {
   dots: true,
   infinite: true,

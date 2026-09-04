@@ -64,200 +64,142 @@ const OwnerRegistration = () => {
     popupAnchor: [1, -34],
     shadowSize: [41, 41],
   });
-const getAddressFromLocation = async (
-  lat,
-  lng,
-  setForm,
-  setPostOffices
-) => {
-  try {
-    console.log("Getting address...");
-    console.log("Latitude:", lat);
-    console.log("Longitude:", lng);
-
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&addressdetails=1`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
-
-    const data = await response.json();
-
-    console.log("Address Data:", data);
-
-    if (!data.address) {
-      Swal.fire(
-        "Address Not Found",
-        "Location mil gayi hai, lekin address details nahi mil paayi.",
-        "warning"
-      );
-      return;
-    }
-
-    const address = data.address;
-
-    const street =
-      address.road ||
-      address.neighbourhood ||
-      address.suburb ||
-      "";
-
-    const pincode = address.postcode || "";
-
-    const city =
-      address.city ||
-      address.town ||
-      address.village ||
-      address.municipality ||
-      "";
-
-    const district =
-      address.state_district ||
-      address.county ||
-      "";
-
-    const state = address.state || "";
-
-    console.log("Street:", street);
-    console.log("Pincode:", pincode);
-    console.log("City:", city);
-    console.log("District:", district);
-    console.log("State:", state);
-
-    // Address auto-fill
-    setForm((prev) => ({
-      ...prev,
-      ownerLatitude: lat,
-      ownerLongitude: lng,
-      ownerShopStreet: street,
-      ownerShopPincode: pincode,
-      ownerShopCity: city,
-      ownerShopDistrict: district,
-      ownerShopState: state,
-    }));
-
-    // ================= PINCODE API =================
-
-    if (/^\d{6}$/.test(pincode)) {
-      console.log("Getting Post Office Details...");
-
-      const pinResponse = await fetch(
-        `https://api.postalpincode.in/pincode/${pincode}`
-      );
-
-      const pinData = await pinResponse.json();
-
-      console.log("Pincode Data:", pinData);
-
-      if (
-        pinData[0] &&
-        pinData[0].Status === "Success" &&
-        pinData[0].PostOffice
-      ) {
-        const offices = pinData[0].PostOffice;
-
-        setPostOffices(offices);
-
-        const first = offices[0];
-
-        setForm((prev) => ({
-          ...prev,
-
-          ownerLatitude: lat,
-          ownerLongitude: lng,
-
-          ownerShopPincode: pincode,
-
-          ownerShopBlock: first?.Name || "",
-
-          ownerShopCity:
-            first?.Block ||
-            prev.ownerShopCity ||
-            city,
-
-          ownerShopDistrict:
-            first?.District ||
-            prev.ownerShopDistrict ||
-            district,
-
-          ownerShopState:
-            first?.State ||
-            prev.ownerShopState ||
-            state,
-        }));
-      }
-    }
-  } catch (error) {
-    console.error("Address Error:", error);
-
-    Swal.fire(
-      "Address Error",
-      "Location mil gayi hai, lekin address details nahi mil paayi.",
-      "warning"
-    );
-  }
-};
-function LocationMarker({
-  locationIcon,
-  setForm,
-  setLocation,
-  setPostOffices,
-  setShowMap,
-}) {
-  const [position, setPosition] = useState(null);
-
-  useMapEvents({
-    click(e) {
-      const { lat, lng } = e.latlng;
-
-      console.log("MAP CLICKED");
+  const getAddressFromLocation = async (lat, lng) => {
+    try {
+      console.log("Getting address...");
       console.log("Latitude:", lat);
       console.log("Longitude:", lng);
 
-      // Marker
-      setPosition(e.latlng);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&addressdetails=1`
+      );
 
-      // Save location
-      setLocation({
-        latitude: lat,
-        longitude: lng,
-      });
+      if (!response.ok) {
+        throw new Error("Unable to fetch address");
+      }
 
-      // Save lat/lng
+      const data = await response.json();
+
+      console.log("Address Data:", data);
+
+      const address = data.address || {};
+
+      // Street / Shop Address
+      const street =
+        address.road ||
+        address.residential ||
+        address.neighbourhood ||
+        address.suburb ||
+        "";
+
+      // Pincode
+      const pincode = address.postcode || "";
+
+      // City
+      const city =
+        address.city ||
+        address.town ||
+        address.municipality ||
+        address.state_district ||
+        "";
+
+      // Block / Taluka
+      const block =
+        address.county ||
+        "";
+
+      // District
+      const district =
+        address.state_district ||
+        address.district ||
+        "";
+
+      // State
+      const state =
+        address.state ||
+        "";
+
+      console.log("Street:", street);
+      console.log("Pincode:", pincode);
+      console.log("City:", city);
+      console.log("Block/Taluka:", block);
+      console.log("District:", district);
+      console.log("State:", state);
+
       setForm((prev) => ({
         ...prev,
         ownerLatitude: lat,
         ownerLongitude: lng,
+        ownerShopStreet: street,
+        ownerShopPincode: pincode,
+        ownerShopCity: city,
+        ownerShopBlock: block,
+        ownerShopDistrict: district,
+        ownerShopState: state,
       }));
 
-      // Get address
-      getAddressFromLocation(
-        lat,
-        lng,
-        setForm,
-        setPostOffices
-      ).then(() => {
-        setShowMap(false);
-      });
-    },
-  });
+      setErrors((prev) => ({
+        ...prev,
+        location: "",
+        ownerShopBlock: "",
+      }));
 
-  return position ? (
-    <Marker position={position} icon={locationIcon}>
-      <Popup>
-        <b>Selected Location</b>
-        <br />
-        Latitude: {position.lat}
-        <br />
-        Longitude: {position.lng}
-      </Popup>
-    </Marker>
-  ) : null;
-}
-  const [postOffices, setPostOffices] = useState([]);
+    } catch (error) {
+      console.error("Reverse geocoding error:", error);
+
+      setErrors((prev) => ({
+        ...prev,
+        location: "Unable to get address from selected location.",
+      }));
+    }
+  };
+  function LocationMarker({
+    locationIcon,
+    setForm,
+    setLocation,
+    setShowMap,
+    getAddressFromLocation,
+  }) {
+    const [position, setPosition] = useState(null);
+
+    useMapEvents({
+      click: async (e) => {
+        const { lat, lng } = e.latlng;
+
+        console.log("MAP CLICKED");
+        console.log("Latitude:", lat);
+        console.log("Longitude:", lng);
+
+        // Show marker
+        setPosition(e.latlng);
+
+        // Save coordinates
+        setLocation({
+          latitude: lat,
+          longitude: lng,
+        });
+
+        // Get address and fill form
+        await getAddressFromLocation(lat, lng);
+
+        // Close map after location is selected
+        setShowMap(false);
+      },
+    });
+
+    return position ? (
+      <Marker position={position} icon={locationIcon}>
+        <Popup>
+          <b>Selected Location</b>
+          <br />
+          Latitude: {position.lat}
+          <br />
+          Longitude: {position.lng}
+        </Popup>
+      </Marker>
+    ) : null;
+  }
+  // const [postOffices, setPostOffices] = useState([]);
 
   /* ================= VALIDATION ================= */
 
@@ -291,7 +233,21 @@ function LocationMarker({
     if (!form.ownerShopPincode || form.ownerShopPincode.length !== 6)
       err.ownerShopPincode = "Valid pincode required";
 
-    if (!form.ownerShopBlock) err.ownerShopBlock = "Select village/block";
+    if (!form.ownerShopBlock) {
+      err.ownerShopBlock = "Block / Taluka required";
+    }
+
+    if (!form.ownerShopCity) {
+      err.ownerShopCity = "City required";
+    }
+
+    if (!form.ownerShopDistrict) {
+      err.ownerShopDistrict = "District required";
+    }
+
+    if (!form.ownerShopState) {
+      err.ownerShopState = "State required";
+    }
 
     setErrors(err);
 
@@ -299,179 +255,62 @@ function LocationMarker({
   };
 
   /* ================= GPS Handle ================== */
-const handleGPS = () => {
-  Swal.fire({
-    title: "Enable Location Service?",
-    text: "To use GPS, your browser needs permission to access your laptop's location.",
-    icon: "info",
-    showCancelButton: true,
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
-  }).then((result) => {
-    if (!result.isConfirmed) return;
-
+  const handleGPS = () => {
     if (!navigator.geolocation) {
-      Swal.fire(
-        "Not Supported",
-        "Geolocation is not supported by your browser.",
-        "error"
-      );
+      setErrors((prev) => ({
+        ...prev,
+        location: "Geolocation is not supported by your browser.",
+      }));
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+        const { latitude, longitude } = position.coords;
 
-        console.log("GPS Latitude:", lat);
-        console.log("GPS Longitude:", lng);
+        console.log("GPS Latitude:", latitude);
+        console.log("GPS Longitude:", longitude);
 
-        // Save location
-        setLocation({
-          latitude: lat,
-          longitude: lng,
-        });
-
-        // Save lat/lng
-        setForm((prev) => ({
-          ...prev,
-          ownerLatitude: lat,
-          ownerLongitude: lng,
-        }));
-
-        // Get address automatically
-        await getAddressFromLocation(
-          lat,
-          lng,
-          setForm,
-          setPostOffices
-        );
-
-        // Close popup
+        setLocation([latitude, longitude]);
         setShowPopup(false);
 
-        Swal.fire({
-          title: "Location Found!",
-          text: "Location and address filled successfully.",
-          icon: "success",
-        });
+        await getAddressFromLocation(latitude, longitude);
       },
-
       (error) => {
-        console.log("GPS Error:", error);
+        console.error("GPS Error:", error);
 
-        Swal.fire({
-          title: "Location Permission Required",
-          text: "Please allow location access from your browser.",
-          icon: "warning",
-        });
+        setErrors((prev) => ({
+          ...prev,
+          location: "Unable to get your current location.",
+        }));
       },
-
       {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
       }
     );
-  });
-};
+  };
   /* ================= HANDLE CHANGE ================= */
 
-const handleChange = async (e) => {
-  const { name, value, files } = e.target;
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
 
-  // Pincode me sirf numbers allow
-  if (name === "ownerShopPincode" && !/^\d*$/.test(value)) {
-  return;
-}
-
-  // Normal field update
-  setForm((prev) => ({
-    ...prev,
-    [name]: files ? files[0] : value,
-  }));
-
-  // Error remove
-  setErrors((prev) => ({
-    ...prev,
-    [name]: "",
-  }));
-
-  // =========================
-  // PINCODE AUTO FILL
-  // =========================
-
-  if (name === "ownerShopPincode" && value.length === 6) {
-    try {
-      console.log("Searching Pincode:", value);
-
-      const response = await fetch(
-        `https://api.postalpincode.in/pincode/${value}`
-      );
-
-      const data = await response.json();
-
-      console.log("Pincode API Response:", data);
-
-      if (
-        data[0] &&
-        data[0].Status === "Success" &&
-        data[0].PostOffice
-      ) {
-        const offices = data[0].PostOffice;
-
-        console.log("Post Offices:", offices);
-
-        setPostOffices(offices);
-
-        const first = offices[0];
-
-        setForm((prev) => ({
-          ...prev,
-
-          ownerShopPincode: value,
-
-          // First post office
-          ownerShopBlock: first?.Name || "",
-
-          // Block ko City me use kar rahe hain
-          ownerShopCity: first?.Block || "",
-
-          ownerShopDistrict: first?.District || "",
-
-          ownerShopState: first?.State || "",
-        }));
-
-      } else {
-        setPostOffices([]);
-
-        setForm((prev) => ({
-          ...prev,
-          ownerShopBlock: "",
-          ownerShopCity: "",
-          ownerShopDistrict: "",
-          ownerShopState: "",
-        }));
-
-        Swal.fire(
-          "Invalid Pincode",
-          "Please enter a valid Indian pincode.",
-          "error"
-        );
-      }
-
-    } catch (error) {
-      console.error("Pincode API Error:", error);
-
-      Swal.fire(
-        "API Error",
-        "Unable to fetch pincode details.",
-        "error"
-      );
+    // Pincode: only numbers
+    if (name === "ownerShopPincode" && !/^\d*$/.test(value)) {
+      return;
     }
-  }
-};
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
 
   /* ================= SUBMIT ================= */
 
@@ -654,25 +493,35 @@ const handleChange = async (e) => {
             </div>
           </div>
 
+          `
+
           <div className="form-section">
             <h3>Shop Address</h3>
 
             <div className="form-grid">
-              {/* Street */}
-              <div className="form-group" style={{ position: "relative" }}>
+
+              {/* Street / Shop Address */}
+              <div
+                className="form-group"
+                style={{ position: "relative" }}
+              >
+                <label>Street / Shop Address</label>
+
                 <input
+                  type="text"
                   name="ownerShopStreet"
-                  placeholder="Street"
+                  placeholder="Enter street / shop address"
                   value={form.ownerShopStreet}
                   onChange={handleChange}
                   onClick={() => setShowPopup(true)}
                 />
-                <small className="error-text">{errors.ownerShopStreet}</small>
-                <small className="error-text">{errors.location}</small>
 
                 {showPopup && (
                   <div className="location-popup">
-                    <button type="button" onClick={handleGPS}>
+                    <button
+                      type="button"
+                      onClick={handleGPS}
+                    >
                       📍 Use GPS
                     </button>
 
@@ -688,59 +537,112 @@ const handleChange = async (e) => {
                   </div>
                 )}
 
-                <small className="error-text">{errors.ownerShopStreet}</small>
+                <small className="error-text">
+                  {errors.ownerShopStreet}
+                </small>
+
+                <small className="error-text">
+                  {errors.location}
+                </small>
               </div>
+
 
               {/* Pincode */}
               <div className="form-group">
+                <label>Pincode</label>
+
                 <input
+                  type="text"
                   name="ownerShopPincode"
-                  placeholder="Pincode"
-                  maxLength="6"
+                  placeholder="Enter pincode"
                   value={form.ownerShopPincode}
                   onChange={handleChange}
+                  maxLength="6"
                 />
-                <small className="error-text">{errors.ownerShopPincode}</small>
+
+                <small className="error-text">
+                  {errors.ownerShopPincode}
+                </small>
               </div>
 
-              {/* Block */}
+
+              {/* City */}
               <div className="form-group">
-                <select
-                  name="ownerShopBlock"
-                  value={form.ownerShopBlock}
-                  onChange={(e) => {
-                    const selected = postOffices.find(
-                      (po) => po.Name === e.target.value,
-                    );
+                <label>City</label>
 
-                    if (!selected) return;
+                <input
+                  type="text"
+                  name="ownerShopCity"
+                  placeholder="City"
+                  value={form.ownerShopCity}
+                  readOnly
+                />
 
-                    setForm((prev) => ({
-                      ...prev,
-                      ownerShopBlock: selected.Name,
-                      ownerShopCity: selected.Block,
-                      ownerShopDistrict: selected.District,
-                      ownerShopState: selected.State,
-                    }));
-                  }}
-                >
-                  <option value="">Select Village / Block</option>
-
-                  {postOffices.map((po, index) => (
-                    <option key={index} value={po.Name}>
-                      {po.Name}
-                    </option>
-                  ))}
-                </select>
-
-                <small className="error-text">{errors.ownerShopBlock}</small>
+                <small className="error-text">
+                  {errors.ownerShopCity}
+                </small>
               </div>
 
-              <input value={form.ownerShopCity} readOnly />
-              <input value={form.ownerShopDistrict} readOnly />
-              <input value={form.ownerShopState} readOnly />
+
+              {/* Block / Taluka */}
+              <div className="form-group">
+                <label>Block / Taluka</label>
+
+                <input
+                  type="text"
+                  name="ownerShopBlock"
+                  placeholder="Block / Taluka"
+                  value={form.ownerShopBlock}
+                  readOnly
+                />
+
+                <small className="error-text">
+                  {errors.ownerShopBlock}
+                </small>
+              </div>
+
+
+              {/* District */}
+              <div className="form-group">
+                <label>District</label>
+
+                <input
+                  type="text"
+                  name="ownerShopDistrict"
+                  placeholder="District"
+                  value={form.ownerShopDistrict}
+                  readOnly
+                />
+
+                <small className="error-text">
+                  {errors.ownerShopDistrict}
+                </small>
+              </div>
+
+
+              {/* State */}
+              <div className="form-group">
+                <label>State</label>
+
+                <input
+                  type="text"
+                  name="ownerShopState"
+                  placeholder="State"
+                  value={form.ownerShopState}
+                  readOnly
+                />
+
+                <small className="error-text">
+                  {errors.ownerShopState}
+                </small>
+              </div>
+
             </div>
           </div>
+
+
+
+
 
           <button className="submit-btn">
             {loading ? "Please wait..." : "Apply"}
@@ -766,16 +668,16 @@ const handleChange = async (e) => {
                   zoom={13}
                   style={{ width: "100%", height: "100%" }}
                 >
-                 <TileLayer
-                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
 
                   <LocationMarker
                     locationIcon={locationIcon}
                     setForm={setForm}
                     setLocation={setLocation}
-                    setPostOffices={setPostOffices}
                     setShowMap={setShowMap}
+                    getAddressFromLocation={getAddressFromLocation}
                   />
                 </MapContainer>
               </div>

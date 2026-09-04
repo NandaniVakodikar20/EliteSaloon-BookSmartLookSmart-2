@@ -254,7 +254,7 @@ exports.getOwnersAppointments = async (req, res) => {
 exports.getCustomersAppointments = async (req, res) => {
   try {
     
-    const { customerId } = req.params;
+    const  customerId  = req.data.customerId;
     const appointments = await AppointmentModel.find({ customerId: customerId });
 
     console.log("Particular Customer Appointments :", appointments);

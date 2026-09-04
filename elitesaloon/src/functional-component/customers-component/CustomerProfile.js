@@ -4,8 +4,17 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Swal from "sweetalert2";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import { useNavigate} from "react-router-dom";
 
 const CustomerProfile = ({ customer, setCustomer }) => {
+
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+   if (!token) {
+    navigate("/unauthorized");
+   }
+
   // ================= STATE =================
   const [formData, setFormData] = useState({
     name: customer.customerName || "",
@@ -20,6 +29,9 @@ const CustomerProfile = ({ customer, setCustomer }) => {
     district: customer.customerDistrict || "",
     state: customer.customerState || "",
   });
+
+ 
+
 
   useEffect(() => {
     if (customer) {
@@ -225,7 +237,7 @@ useEffect(() => {
 
   // Pincode
   if (!/^\d{6}$/.test(formData.pincode)) {
-    Swal.fire("Error", "Enter valid 6-digit pincode", "error");
+    Swal.fire("Error", "Enter valid 6-digimmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmt pincode", "error");
     return false;
   }
 
@@ -257,6 +269,12 @@ useEffect(() => {
 };
   // ================= PROFILE UPDATE =================
   const handleSubmit = async (e) => {
+    
+     if (!token) {
+    navigate("/unauthorized");
+    return;
+   }
+
     e.preventDefault();
 
     if (!validateProfile()) return;
@@ -274,8 +292,9 @@ useEffect(() => {
           Swal.showLoading();
         },
       });
+
       const res = await axios.put(
-        `http://localhost:5000/customer/update-profile/${customer._id}`,
+        `http://localhost:5000/customer/update-profile`,
         {
           customerName: formData.name,
           customerEmail: formData.email,
@@ -287,7 +306,12 @@ useEffect(() => {
           customerCity: formData.city,
           customerDistrict: formData.district,
           customerState: formData.state,
-        },
+        },    
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       Swal.close();
@@ -299,9 +323,15 @@ useEffect(() => {
           timer: 2000,
           showConfirmButton: false,
         });
-
+        console.log("Successful Profile Update Response:", res.data);
         setCustomer(res.data.data);
+      }else if (res.status === 401) {
+        console.log("Unauthorized access. Redirecting to /unauthorized.");
+        localStorage.removeItem("token");
+        navigate("/unauthorized");
+        return;
       }
+
     } catch (error) {
       console.log(error);
       Swal.fire({
@@ -352,8 +382,13 @@ useEffect(() => {
     });
     try {
       const res = await axios.post(
-        `http://localhost:5000/customer/change-password/${customer._id}`,
+        `http://localhost:5000/customer/change-password`,
         passwordData,
+        { 
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+      }
       );
       Swal.close();
       if (res.status === 200) {
@@ -370,6 +405,11 @@ useEffect(() => {
           newPassword: "",
           confirmPassword: "",
         });
+      }else if (res.status === 401) {
+        console.log("Unauthorized access. Redirecting to /unauthorized.");
+        localStorage.removeItem("token");
+        navigate("/unauthorized");
+        return;
       }
     } catch (error) {
       console.log(error);

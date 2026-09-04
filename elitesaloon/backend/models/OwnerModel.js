@@ -48,8 +48,6 @@ const ownerSchema = new mongoose.Schema({
     ownerShopState: {
         type: String, required: true
     },
-
-    
     ownerLatitude: {
         type: Number, required: true
     },

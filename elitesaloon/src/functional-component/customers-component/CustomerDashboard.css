@@ -1727,3 +1727,453 @@ min-height: 480px; /* Perfect balanced height */
   background: #fff3cd;
   color: #ff9800;
 }
+
+
+
+
+
+/* =========================================================
+   CUSTOMER DASHBOARD
+========================================================= */
+
+.customer-dashboard {
+  display: flex;
+  min-height: 100vh;
+  background: #faf8f5;
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 35px 45px;
+  overflow-y: auto;
+}
+
+
+/* =========================================================
+   NEARBY LOCATION CARD
+========================================================= */
+
+.nearby-location-card {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 25px 30px;
+  margin-bottom: 30px;
+
+  background: #ffffff;
+  border: 1px solid #eee5dc;
+  border-radius: 18px;
+
+  box-shadow: 0 5px 20px rgba(45, 41, 38, 0.07);
+
+  transition: all 0.3s ease;
+}
+
+.nearby-location-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(45, 41, 38, 0.1);
+}
+
+
+/* Location Icon */
+
+.nearby-location-icon {
+  width: 65px;
+  height: 65px;
+  min-width: 65px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #f7ecd5;
+  color: #a47c35;
+
+  font-size: 27px;
+}
+
+
+/* Content */
+
+.nearby-location-content {
+  flex: 1;
+}
+
+.nearby-location-content h2 {
+  margin: 0 0 8px;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-weight: 700;
+
+  color: #2d2926;
+}
+
+.nearby-location-content p {
+  margin: 0 0 17px;
+
+  color: #716a64;
+
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+
+/* Enable Button */
+
+.enable-location-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  padding: 12px 22px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: linear-gradient(
+    135deg,
+    #9a1238,
+    #bd6477
+  );
+
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+.enable-location-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 6px 15px rgba(154, 18, 56, 0.25);
+}
+
+.enable-location-btn svg {
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   LOCATION MODAL OVERLAY
+========================================================= */
+
+.location-modal-overlay {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(30, 25, 25, 0.62);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  z-index: 99999;
+
+  animation: locationOverlayFade 0.25s ease;
+}
+
+
+/* =========================================================
+   LOCATION MODAL
+========================================================= */
+
+.location-modal {
+  width: 420px;
+  max-width: 100%;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border-radius: 20px;
+
+  padding: 35px 35px 30px;
+
+  text-align: center;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.25);
+
+  animation: locationModalShow 0.3s ease;
+}
+
+
+/* =========================================================
+   MODAL LOCATION ICON
+========================================================= */
+
+.location-modal-icon {
+  width: 75px;
+  height: 75px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #f7ecd5;
+
+  color: #a47c35;
+
+  font-size: 31px;
+
+  box-shadow: 0 5px 15px rgba(164, 124, 53, 0.15);
+}
+
+
+/* =========================================================
+   MODAL HEADING
+========================================================= */
+
+.location-modal h2 {
+  margin: 0 0 10px;
+
+  font-family: Georgia, "Times New Roman", serif;
+
+  font-size: 27px;
+
+  color: #2d2926;
+}
+
+
+/* Gold Decorative Line */
+
+.location-modal h2::after {
+  content: "";
+
+  display: block;
+
+  width: 55px;
+  height: 3px;
+
+  margin: 12px auto 0;
+
+  border-radius: 5px;
+
+  background: linear-gradient(
+    90deg,
+    #c9a227,
+    #bd6477
+  );
+}
+
+
+/* =========================================================
+   MODAL TEXT
+========================================================= */
+
+.location-modal p {
+  margin: 20px 0 27px;
+
+  color: #716a64;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   MODAL BUTTONS
+========================================================= */
+
+.location-modal-buttons {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+
+/* Common button */
+
+.location-modal-buttons button {
+  min-width: 120px;
+
+  padding: 12px 22px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+
+/* =========================================================
+   DENY BUTTON
+========================================================= */
+
+.location-deny-btn {
+  background: #f0ece8;
+
+  color: #514b47;
+
+  border: 1px solid #ded7d1 !important;
+}
+
+.location-deny-btn:hover {
+  background: #e5dfda;
+
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   ALLOW BUTTON
+========================================================= */
+
+.location-allow-btn {
+  background: linear-gradient(
+    135deg,
+    #b08d57,
+    #c9a227
+  );
+
+  color: #ffffff;
+}
+
+.location-allow-btn:hover {
+  background: linear-gradient(
+    135deg,
+    #967545,
+    #b08d57
+  );
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 6px 15px rgba(176, 141, 87, 0.3);
+}
+
+
+/* Disabled */
+
+.location-allow-btn:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes locationOverlayFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes locationModalShow {
+  from {
+    opacity: 0;
+
+    transform: translateY(20px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .dashboard-main {
+    padding: 25px 20px;
+  }
+
+  .nearby-location-card {
+    padding: 22px;
+  }
+
+  .nearby-location-content h2 {
+    font-size: 21px;
+  }
+
+  .location-modal {
+    width: 380px;
+
+    padding: 30px 25px 25px;
+  }
+}
+
+
+@media (max-width: 480px) {
+
+  .nearby-location-card {
+    flex-direction: column;
+
+    text-align: center;
+  }
+
+  .nearby-location-content {
+    width: 100%;
+  }
+
+  .location-modal {
+    width: 100%;
+
+    padding: 28px 20px 23px;
+  }
+
+  .location-modal-buttons {
+    flex-direction: column;
+  }
+
+  .location-modal-buttons button {
+    width: 100%;
+  }
+}

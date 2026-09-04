@@ -13,6 +13,7 @@ import {
   FaShoppingBag,
   FaSignOutAlt,
   FaCog,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
 
 const CustomerDashboard = () => {
@@ -20,40 +21,152 @@ const CustomerDashboard = () => {
   const location = useLocation();
 
   // Initial state check: Agar reschedule se aa rahe hain toh direct 'bookappointments' tab khule
- const [activeSection, setActiveSection] = useState(
-  location.state?.activeSection ||
-  (location.state?.openReschedule
-    ? "bookappointments"
-    : "overview")
-);
+  const [activeSection, setActiveSection] = useState(
+    location.state?.activeSection ||
+    (location.state?.openReschedule
+      ? "bookappointments"
+      : "overview")
+  );
 
-  const [customer, setCustomer] = useState(() => {
-    const stored = localStorage.getItem("customer");
-    return location.state?.customer || (stored ? JSON.parse(stored) : {});
-  });
+  // const [customer, setCustomer] = useState(() => {
+  //   const stored = localStorage.getItem("customer");
+  //   return location.state?.customer || (stored ? JSON.parse(stored) : {});
+  // });
 
-  
+  const [customer, setCustomer] = useState({});
+
+  // const [customer, setCustomer] = useState(null);
+  const [loading, setLoading] = useState(true);
+const [showLocationPrompt, setShowLocationPrompt] = useState(false);
+const [locationLoading, setLocationLoading] = useState(false);
+  useEffect(() => {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/unauthorized");
+      return;
+    }
+
+    fetch("http://localhost:5000/customer/profile", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(async response => {
+
+        const data = await response.json();
+        console.log("Protected API Response:", data);
+        console.log("Protected API Response:", response.status);
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/unauthorized");
+          return;
+        }
+
+        console.log("Customer API Response:", data);
+        if (data.customer != null) {
+          setCustomer(data.customer);
+          setLoading(false);
+        }
+
+        return data;
+
+      })
+      .catch(error => {
+        console.error(error);
+        setLoading(false);
+        navigate("/error");
+      });
+
+  }, [navigate]);
+
+const handleEnableLocation = () => {
+  if (!navigator.geolocation) {
+    console.error("Geolocation is not supported by this browser.");
+    alert("Your browser does not support location services.");
+    return;
+  }
+
+  setLocationLoading(true);
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      console.log("====================================");
+      console.log("       CUSTOMER LOCATION");
+      console.log("====================================");
+      console.log("Latitude:", latitude);
+      console.log("Longitude:", longitude);
+      console.log("====================================");
+
+      // Save location in localStorage
+      localStorage.setItem(
+        "customerLocation",
+        JSON.stringify({
+          latitude: latitude,
+          longitude: longitude,
+        })
+      );
+
+      setLocationLoading(false);
+      setShowLocationPrompt(false);
+    },
+
+    (error) => {
+      console.error("Location Error:", error);
+
+      setLocationLoading(false);
+
+      if (error.code === 1) {
+        console.log("Customer denied location permission.");
+      } else if (error.code === 2) {
+        console.log("Location information is unavailable.");
+      } else if (error.code === 3) {
+        console.log("Location request timed out.");
+      }
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    }
+  );
+};
+
 useEffect(() => {
+  const savedLocation = localStorage.getItem("customerLocation");
 
-  if (location.state?.activeSection) {
-    setActiveSection(location.state.activeSection);
+  if (!savedLocation) {
+    setShowLocationPrompt(true);
   }
+}, []);
 
-  if (location.state?.openReschedule) {
-    setActiveSection("bookappointments");
-  }
 
-}, [location.state]);
+  useEffect(() => {
+
+    if (location.state?.activeSection) {
+      setActiveSection(location.state.activeSection);
+    }
+    if (location.state?.openReschedule) {
+      setActiveSection("bookappointments");
+    }
+
+  }, [location.state]);
 
   // Session check
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const customerId = localStorage.getItem("customerId");
+  // useEffect(() => {
+  //   const isLoggedIn = localStorage.getItem("isLoggedIn");
+  //   const customerId = localStorage.getItem("customerId");
 
-    if (!isLoggedIn || !customerId) {
-      navigate("/customerlogin");
-    }
-  }, [navigate]);
+  //   if (!isLoggedIn || !customerId) {
+  //     navigate("/customerlogin");
+  //   }
+  // }, [navigate]);
 
   const feedbacks = [
     {
@@ -73,7 +186,7 @@ useEffect(() => {
             <img
               src={
                 !customer?.customerProfileImage ||
-                customer.customerProfileImage === "default/defaultProfile.png"
+                  customer.customerProfileImage === "default/defaultProfile.png"
                   ? "http://localhost:5000/uploads/default/defaultProfile.png"
                   : `http://localhost:5000/uploads/customerProfile/${customer.customerProfileImage}?t=${Date.now()}`
               }
@@ -142,7 +255,7 @@ useEffect(() => {
         return (
           <CustomerOverview
             customer={customer}
-            appointments={[]} 
+            appointments={[]}
             navigate={navigate}
             setActiveSection={setActiveSection}
           />
@@ -162,13 +275,68 @@ useEffect(() => {
     }
   };
 
-
   return (
-    <div className="customer-dashboard">
-      {renderSidebar()}
-      <div className="dashboard-main">{renderContent()}</div>
+  <div className="customer-dashboard">
+
+    {renderSidebar()}
+
+    <div className="dashboard-main">
+      {renderContent()}
     </div>
-  );
+
+    {/* ================= LOCATION POPUP ================= */}
+    {showLocationPrompt && (
+      <div className="location-modal-overlay">
+
+        <div className="location-modal">
+
+          <div className="location-modal-icon">
+            <FaMapMarkerAlt />
+          </div>
+
+          <h2>Find Salons Near You</h2>
+
+          <p>
+            Allow your location to find nearby salons
+            and services available around you.
+          </p>
+
+          <div className="location-modal-buttons">
+
+            {/* DENY */}
+            <button
+              type="button"
+              className="location-deny-btn"
+              onClick={() => {
+                console.log("Customer denied location access.");
+                setShowLocationPrompt(false);
+              }}
+            >
+              Deny
+            </button>
+
+            {/* ALLOW */}
+            <button
+              type="button"
+              className="location-allow-btn"
+              onClick={handleEnableLocation}
+              disabled={locationLoading}
+            >
+              {locationLoading
+                ? "Getting Location..."
+                : "Allow"}
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+    )}
+
+  </div>
+);
+
 };
 
 export default CustomerDashboard;

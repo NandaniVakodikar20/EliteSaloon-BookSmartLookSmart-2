@@ -1740,3 +1740,302 @@ border:1px solid #ccc;
         font-size: 13px;
     }
 }
+
+
+
+/* =========================================================
+   LOCATION POPUP
+========================================================= */
+
+.location-popup {
+    position: absolute;
+    top: 105%;
+    left: 0;
+    width: 220px;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+    z-index: 1000;
+    animation: popupFade 0.25s ease;
+}
+
+.location-popup button {
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.location-popup button:first-child {
+    background: #D4AF37;
+    color: white;
+}
+
+.location-popup button:first-child:hover {
+    background: #c59b19;
+}
+
+.location-popup button:last-child {
+    background: #1F2937;
+    color: white;
+    margin-bottom: 0;
+}
+
+.location-popup button:last-child:hover {
+    background: #111827;
+}
+
+
+/* =========================================================
+   MAP MODAL
+========================================================= */
+
+.map-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+}
+
+
+/* =========================================================
+   MAP CONTAINER
+========================================================= */
+
+.map-container {
+    width: 90%;
+    max-width: 900px;
+    height: 600px;
+
+    background: #ffffff;
+    border-radius: 15px;
+
+    overflow: hidden;
+
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================================================
+   MAP HEADER
+========================================================= */
+
+.map-header {
+    height: 60px;
+    min-height: 60px;
+
+    background: #1F2937;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 20px;
+}
+
+.map-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   MAP CLOSE BUTTON
+========================================================= */
+
+.map-close {
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #ef4444;
+    color: white;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.map-close:hover {
+    background: #dc2626;
+    transform: rotate(90deg);
+}
+
+
+/* =========================================================
+   MAP BODY
+========================================================= */
+
+.map-body {
+    flex: 1;
+    height: 500px;
+    min-height: 0;
+
+    position: relative;
+}
+
+
+/* =========================================================
+   LEAFLET MAP
+========================================================= */
+
+.map-body .leaflet-container {
+    width: 100%;
+    height: 100%;
+}
+
+
+/* =========================================================
+   LEAFLET MARKER
+========================================================= */
+
+.leaflet-marker-icon {
+    z-index: 1000 !important;
+}
+
+.leaflet-marker-shadow {
+    z-index: 999 !important;
+}
+
+
+/* =========================================================
+   LEAFLET POPUP
+========================================================= */
+
+.leaflet-popup-content {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+}
+
+
+/* =========================================================
+   MAP FOOTER
+========================================================= */
+
+.map-footer {
+    min-height: 45px;
+
+    padding: 12px;
+
+    text-align: center;
+
+    background: #f8fafc;
+
+    border-top: 1px solid #e5e7eb;
+
+    font-size: 14px;
+    color: #555;
+}
+
+
+/* =========================================================
+   POPUP ANIMATION
+========================================================= */
+
+@keyframes popupFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .map-container {
+        width: 95%;
+        height: 80vh;
+    }
+
+    .map-header {
+        height: 55px;
+        min-height: 55px;
+        padding: 0 15px;
+    }
+
+    .map-header h3 {
+        font-size: 16px;
+    }
+
+    .map-body {
+        height: auto;
+        flex: 1;
+    }
+
+    .location-popup {
+        width: 190px;
+    }
+
+    .map-footer {
+        font-size: 13px;
+        padding: 10px;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .map-container {
+        width: 96%;
+        height: 85vh;
+        border-radius: 12px;
+    }
+
+    .map-header h3 {
+        font-size: 15px;
+    }
+
+    .map-close {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    .location-popup {
+        width: 180px;
+        padding: 12px;
+    }
+
+    .location-popup button {
+        padding: 9px 10px;
+        font-size: 13px;
+    }
+}
