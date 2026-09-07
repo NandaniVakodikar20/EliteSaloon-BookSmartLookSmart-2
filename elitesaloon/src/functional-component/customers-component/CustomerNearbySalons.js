@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 
 import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMap,
-  useMapEvents,
+    MapContainer,
+    TileLayer,
+    Marker,
+    Popup,
+    useMap,
+    useMapEvents,
 } from "react-leaflet";
 
 import L from "leaflet";
 
 import {
-  FaMapMarkerAlt,
-  FaSearchLocation,
+    FaMapMarkerAlt,
+    FaSearchLocation,
 } from "react-icons/fa";
 
 import "leaflet/dist/leaflet.css";
@@ -27,14 +27,14 @@ import "./CustomerDashboard.css";
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+    iconRetinaUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
 
-  iconUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    iconUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
 
-  shadowUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+    shadowUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
 
@@ -43,14 +43,14 @@ L.Icon.Default.mergeOptions({
 // ======================================================
 
 const clickedLocationIcon = new L.Icon({
-  iconUrl:
-    "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+    iconUrl:
+        "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
 
-  iconSize: [32, 32],
+    iconSize: [32, 32],
 
-  iconAnchor: [16, 32],
+    iconAnchor: [16, 32],
 
-  popupAnchor: [0, -32],
+    popupAnchor: [0, -32],
 });
 
 
@@ -60,19 +60,19 @@ const clickedLocationIcon = new L.Icon({
 
 const ChangeMapCenter = ({ position }) => {
 
-  const map = useMap();
+    const map = useMap();
 
-  useEffect(() => {
+    useEffect(() => {
 
-    if (position) {
+        if (position) {
 
-      map.setView(position, 15);
+            map.setView(position, 15);
 
-    }
+        }
 
-  }, [position, map]);
+    }, [position, map]);
 
-  return null;
+    return null;
 };
 
 
@@ -82,56 +82,56 @@ const ChangeMapCenter = ({ position }) => {
 
 const MapClickHandler = ({ setClickedLocation }) => {
 
-  useMapEvents({
+    useMapEvents({
 
-    click: (event) => {
+        click: (event) => {
 
-      const latitude = event.latlng.lat;
+            const latitude = event.latlng.lat;
 
-      const longitude = event.latlng.lng;
-
-
-      // ================================================
-      // CONSOLE OUTPUT
-      // ================================================
-
-      console.log(
-        "================================="
-      );
-
-      console.log(
-        "MAP CLICKED LOCATION"
-      );
-
-      console.log(
-        "Latitude:",
-        latitude
-      );
-
-      console.log(
-        "Longitude:",
-        longitude
-      );
-
-      console.log(
-        "================================="
-      );
+            const longitude = event.latlng.lng;
 
 
-      // ================================================
-      // SAVE CLICKED LOCATION
-      // ================================================
+            // ================================================
+            // CONSOLE OUTPUT
+            // ================================================
 
-      setClickedLocation([
-        latitude,
-        longitude,
-      ]);
+            console.log(
+                "================================="
+            );
 
-    },
+            console.log(
+                "MAP CLICKED LOCATION"
+            );
 
-  });
+            console.log(
+                "Latitude:",
+                latitude
+            );
 
-  return null;
+            console.log(
+                "Longitude:",
+                longitude
+            );
+
+            console.log(
+                "================================="
+            );
+
+
+            // ================================================
+            // SAVE CLICKED LOCATION
+            // ================================================
+
+            setClickedLocation([
+                latitude,
+                longitude,
+            ]);
+
+        },
+
+    });
+
+    return null;
 };
 
 
@@ -141,396 +141,396 @@ const MapClickHandler = ({ setClickedLocation }) => {
 
 const CustomerNearbySalons = () => {
 
-  const [showMap, setShowMap] = useState(false);
+    const [showMap, setShowMap] = useState(false);
 
-  const [customerLocation, setCustomerLocation] =
-    useState(null);
+    const [customerLocation, setCustomerLocation] =
+        useState(null);
 
-  const [clickedLocation, setClickedLocation] =
-    useState(null);
-
-
-  // ====================================================
-  // FIND NEARBY SALONS
-  // ====================================================
-
-  const handleFindNearbySalons = async () => {
-
-    // const savedLocation =
-    //   localStorage.getItem("customerLocation");
+    const [clickedLocation, setClickedLocation] =
+        useState(null);
 
 
-    // // -----------------------------------------------
-    // // LOCATION NOT FOUND
-    // // -----------------------------------------------
+    // ====================================================
+    // FIND NEARBY SALONS
+    // ====================================================
 
-    // if (!savedLocation) {
+    const handleFindNearbySalons = async () => {
 
-    //   alert(
-    //     "Please allow your location first."
-    //   );
-
-    //   console.log(
-    //     "Customer location not found in localStorage."
-    //   );
-
-    //   return;
-    // }
+        // const savedLocation =
+        //   localStorage.getItem("customerLocation");
 
 
-    // -----------------------------------------------
-    // CONVERT STRING TO OBJECT
-    // -----------------------------------------------
+        // // -----------------------------------------------
+        // // LOCATION NOT FOUND
+        // // -----------------------------------------------
 
-    try {
+        // if (!savedLocation) {
 
-      // const location =
-      //   JSON.parse(savedLocation);
+        //   alert(
+        //     "Please allow your location first."
+        //   );
 
+        //   console.log(
+        //     "Customer location not found in localStorage."
+        //   );
 
-      // const latitude =
-      //   Number(location.latitude);
-
-      // const longitude =
-      //   Number(location.longitude);
-      const latitude = Number(21.16885646764516);
-      const longitude = Number(72.86287307739259);
-
-      // -----------------------------------------------
-      // VALIDATE COORDINATES
-      // -----------------------------------------------
-
-      if (
-        Number.isNaN(latitude) ||
-        Number.isNaN(longitude)
-      ) {
-
-        console.error(
-          "Invalid customer coordinates."
-        );
-
-        return;
-      }
+        //   return;
+        // }
 
 
-      // -----------------------------------------------
-      // CURRENT LOCATION CONSOLE
-      // -----------------------------------------------
+        // -----------------------------------------------
+        // CONVERT STRING TO OBJECT
+        // -----------------------------------------------
 
-      console.log(
-        "================================="
-      );
+        try {
 
-      console.log(
-        "CUSTOMER CURRENT LOCATION"
-      );
-
-      console.log(
-        "Latitude:",
-        latitude
-      );
-
-      console.log(
-        "Longitude:",
-        longitude
-      );
-
-      console.log(
-        "================================="
-      );
+            // const location =
+            //   JSON.parse(savedLocation);
 
 
-      // -----------------------------------------------
-      // SAVE CUSTOMER LOCATION
-      // -----------------------------------------------
+            // const latitude =
+            //   Number(location.latitude);
 
-      setCustomerLocation([
-        latitude,
-        longitude,
-      ]);
+            // const longitude =
+            //   Number(location.longitude);
+            const latitude = Number(21.16885646764516);
+            const longitude = Number(72.86287307739259);
 
-      const response = await fetch("http://localhost:5000/customer/nearby-salons", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          latitude: latitude,
-          longitude: longitude,
-        }),
-      });
+            // -----------------------------------------------
+            // VALIDATE COORDINATES
+            // -----------------------------------------------
 
-      if (!response.ok) {
-        throw new Error(
-          `Server error: ${response.status}`
-        );
-      }
+            if (
+                Number.isNaN(latitude) ||
+                Number.isNaN(longitude)
+            ) {
 
-      // -----------------------------------------------
-      // CONVERT RESPONSE TO JSON
-      // -----------------------------------------------
+                console.error(
+                    "Invalid customer coordinates."
+                );
 
-      const data = await response.json();
-
-      console.log("Nearby Salon Data:", data);
-
-      console.log("Total Salons:", data.totalSalons);
-
-      console.log("Owners:", data.owners);
-
-      // -----------------------------------------------
-      // SHOW MAP
-      // -----------------------------------------------
-
-      setShowMap(true);
-
-    } catch (error) {
-
-      console.error(
-        "Error reading customer location:",
-        error
-      );
-
-    }
-
-  };
+                return;
+            }
 
 
-  // ====================================================
-  // RENDER
-  // ====================================================
+            // -----------------------------------------------
+            // CURRENT LOCATION CONSOLE
+            // -----------------------------------------------
 
-  return (
+            console.log(
+                "================================="
+            );
 
-    <div className="nearby-salons-section">
+            console.log(
+                "CUSTOMER CURRENT LOCATION"
+            );
+
+            console.log(
+                "Latitude:",
+                latitude
+            );
+
+            console.log(
+                "Longitude:",
+                longitude
+            );
+
+            console.log(
+                "================================="
+            );
 
 
-      {/* ==================================================
+            // -----------------------------------------------
+            // SAVE CUSTOMER LOCATION
+            // -----------------------------------------------
+
+            setCustomerLocation([
+                latitude,
+                longitude,
+            ]);
+
+            const response = await fetch("http://localhost:5000/customer/nearby-salons", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    latitude: latitude,
+                    longitude: longitude,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    `Server error: ${response.status}`
+                );
+            }
+
+            // -----------------------------------------------
+            // CONVERT RESPONSE TO JSON
+            // -----------------------------------------------
+
+            const data = await response.json();
+
+            console.log("Nearby Salon Data:", data);
+
+            console.log("Total Salons:", data.totalSalons);
+
+            console.log("Owners:", data.owners);
+
+            // -----------------------------------------------
+            // SHOW MAP
+            // -----------------------------------------------
+
+            setShowMap(true);
+
+        } catch (error) {
+
+            console.error(
+                "Error reading customer location:",
+                error
+            );
+
+        }
+
+    };
+
+
+    // ====================================================
+    // RENDER
+    // ====================================================
+
+    return (
+
+        <div className="nearby-salons-section">
+
+
+            {/* ==================================================
           PAGE HEADER
       ================================================== */}
 
-      <div className="nearby-salons-header">
+            <div className="nearby-salons-header">
 
-        <div>
+                <div>
 
-          <h1>
-            Nearby Salons
-          </h1>
+                    <h1>
+                        Nearby Salons
+                    </h1>
 
-          <p>
-            Find salons near your current location
-          </p>
+                    <p>
+                        Find salons near your current location
+                    </p>
 
-        </div>
-
-
-        <FaMapMarkerAlt
-          className="nearby-header-icon"
-        />
-
-      </div>
+                </div>
 
 
-      {/* ==================================================
+                <FaMapMarkerAlt
+                    className="nearby-header-icon"
+                />
+
+            </div>
+
+
+            {/* ==================================================
           BEFORE MAP
       ================================================== */}
 
-      {!showMap ? (
+            {!showMap ? (
 
-        <div className="find-salon-card">
-
-
-          <div className="find-salon-icon">
-
-            <FaSearchLocation />
-
-          </div>
+                <div className="find-salon-card">
 
 
-          <h2>
-            Find Salons Near You
-          </h2>
+                    <div className="find-salon-icon">
+
+                        <FaSearchLocation />
+
+                    </div>
 
 
-          <p>
-            Discover salons around your current
-            location and explore available services.
-          </p>
+                    <h2>
+                        Find Salons Near You
+                    </h2>
 
 
-          <button
-            type="button"
-            className="find-nearby-salon-btn"
-            onClick={handleFindNearbySalons}
-          >
-
-            <FaMapMarkerAlt />
-
-            Find Nearby Salons
-
-          </button>
+                    <p>
+                        Discover salons around your current
+                        location and explore available services.
+                    </p>
 
 
-        </div>
+                    <button
+                        type="button"
+                        className="find-nearby-salon-btn"
+                        onClick={handleFindNearbySalons}
+                    >
 
-      ) : (
+                        <FaMapMarkerAlt />
+
+                        Find Nearby Salons
+
+                    </button>
 
 
-        /* ==================================================
-           MAP SECTION
-        ================================================== */
+                </div>
 
-        <div className="nearby-map-container">
+            ) : (
 
 
-          {/* ==================================================
+                /* ==================================================
+                   MAP SECTION
+                ================================================== */
+
+                <div className="nearby-map-container">
+
+
+                    {/* ==================================================
               MAP HEADER
           ================================================== */}
 
-          <div className="map-header">
+                    <div className="map-header">
 
-            <div>
+                        <div>
 
-              <h2>
-                Salons Near You
-              </h2>
-            </div>
+                            <h2>
+                                Salons Near You
+                            </h2>
+                        </div>
 
-          </div>
+                    </div>
 
 
-          {/* ==================================================
+                    {/* ==================================================
               REAL LEAFLET MAP
           ================================================== */}
 
-          {customerLocation && (
+                    {customerLocation && (
 
-            <MapContainer
+                        <MapContainer
 
-              center={customerLocation}
+                            center={customerLocation}
 
-              zoom={15}
+                            zoom={15}
 
-              scrollWheelZoom={true}
+                            scrollWheelZoom={true}
 
-              className="nearby-leaflet-map"
+                            className="nearby-leaflet-map"
 
-            >
+                        >
 
 
-              {/* ==================================================
+                            {/* ==================================================
                   OPEN STREET MAP
               ================================================== */}
 
-              <TileLayer
-                attribution='&copy; OpenStreetMap contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+                            <TileLayer
+                                attribution='&copy; OpenStreetMap contributors'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
 
 
-              {/* ==================================================
+                            {/* ==================================================
                   CUSTOMER CURRENT LOCATION
               ================================================== */}
 
-              <Marker
-                position={customerLocation}
-              >
+                            <Marker
+                                position={customerLocation}
+                            >
 
-                <Popup>
+                                <Popup>
 
-                  <div className="nearby-location-popup">
+                                    <div className="nearby-location-popup">
 
-                    <strong>
-                      Your Current Location
-                    </strong>
+                                        <strong>
+                                            Your Current Location
+                                        </strong>
 
-                    <div>
-                      Latitude:
-                      {" "}
-                      {customerLocation[0]}
-                    </div>
+                                        <div>
+                                            Latitude:
+                                            {" "}
+                                            {customerLocation[0]}
+                                        </div>
 
-                    <div>
-                      Longitude:
-                      {" "}
-                      {customerLocation[1]}
-                    </div>
+                                        <div>
+                                            Longitude:
+                                            {" "}
+                                            {customerLocation[1]}
+                                        </div>
 
-                  </div>
+                                    </div>
 
-                </Popup>
+                                </Popup>
 
-              </Marker>
+                            </Marker>
 
 
-              {/* ==================================================
+                            {/* ==================================================
                   MAP CLICK HANDLER
               ================================================== */}
 
-              <MapClickHandler
-                setClickedLocation={setClickedLocation}
-              />
+                            <MapClickHandler
+                                setClickedLocation={setClickedLocation}
+                            />
 
 
-              {/* ==================================================
+                            {/* ==================================================
                   CLICKED LOCATION MARKER
               ================================================== */}
 
-              {clickedLocation && (
+                            {clickedLocation && (
 
-                <Marker
-                  position={clickedLocation}
-                  icon={clickedLocationIcon}
-                >
+                                <Marker
+                                    position={clickedLocation}
+                                    icon={clickedLocationIcon}
+                                >
 
-                  <Popup>
+                                    <Popup>
 
-                    <div className="nearby-location-popup">
+                                        <div className="nearby-location-popup">
 
-                      <strong>
-                        Selected Location
-                      </strong>
+                                            <strong>
+                                                Selected Location
+                                            </strong>
 
-                      <div>
-                        Latitude:
-                        {" "}
-                        {clickedLocation[0]}
-                      </div>
+                                            <div>
+                                                Latitude:
+                                                {" "}
+                                                {clickedLocation[0]}
+                                            </div>
 
-                      <div>
-                        Longitude:
-                        {" "}
-                        {clickedLocation[1]}
-                      </div>
+                                            <div>
+                                                Longitude:
+                                                {" "}
+                                                {clickedLocation[1]}
+                                            </div>
 
-                    </div>
+                                        </div>
 
-                  </Popup>
+                                    </Popup>
 
-                </Marker>
+                                </Marker>
 
-              )}
+                            )}
 
 
-              {/* ==================================================
+                            {/* ==================================================
                   CENTER MAP ON CUSTOMER
               ================================================== */}
 
-              <ChangeMapCenter
-                position={customerLocation}
-              />
+                            <ChangeMapCenter
+                                position={customerLocation}
+                            />
 
-            </MapContainer>
+                        </MapContainer>
 
-          )}
+                    )}
+
+                </div>
+
+            )}
 
         </div>
 
-      )}
-
-    </div>
-
-  );
+    );
 
 };
 

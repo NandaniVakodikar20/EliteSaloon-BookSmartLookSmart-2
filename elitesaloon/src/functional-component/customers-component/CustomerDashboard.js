@@ -38,8 +38,8 @@ const CustomerDashboard = () => {
 
   // const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
-const [showLocationPrompt, setShowLocationPrompt] = useState(false);
-const [locationLoading, setLocationLoading] = useState(false);
+  const [showLocationPrompt, setShowLocationPrompt] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
   useEffect(() => {
 
     const token = localStorage.getItem("token");
@@ -83,69 +83,69 @@ const [locationLoading, setLocationLoading] = useState(false);
 
   }, [navigate]);
 
-const handleEnableLocation = () => {
-  if (!navigator.geolocation) {
-    console.error("Geolocation is not supported by this browser.");
-    alert("Your browser does not support location services.");
-    return;
-  }
-
-  setLocationLoading(true);
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-
-      console.log("====================================");
-      console.log("       CUSTOMER LOCATION");
-      console.log("====================================");
-      console.log("Latitude:", latitude);
-      console.log("Longitude:", longitude);
-      console.log("====================================");
-
-      // Save location in localStorage
-      localStorage.setItem(
-        "customerLocation",
-        JSON.stringify({
-          latitude: latitude,
-          longitude: longitude,
-        })
-      );
-
-      setLocationLoading(false);
-      setShowLocationPrompt(false);
-    },
-
-    (error) => {
-      console.error("Location Error:", error);
-
-      setLocationLoading(false);
-
-      if (error.code === 1) {
-        console.log("Customer denied location permission.");
-      } else if (error.code === 2) {
-        console.log("Location information is unavailable.");
-      } else if (error.code === 3) {
-        console.log("Location request timed out.");
-      }
-    },
-
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0,
+  const handleEnableLocation = () => {
+    if (!navigator.geolocation) {
+      console.error("Geolocation is not supported by this browser.");
+      alert("Your browser does not support location services.");
+      return;
     }
-  );
-};
 
-useEffect(() => {
-  const savedLocation = localStorage.getItem("customerLocation");
+    setLocationLoading(true);
 
-  if (!savedLocation) {
-    setShowLocationPrompt(true);
-  }
-}, []);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        console.log("====================================");
+        console.log("       CUSTOMER LOCATION");
+        console.log("====================================");
+        console.log("Latitude:", latitude);
+        console.log("Longitude:", longitude);
+        console.log("====================================");
+
+        // Save location in localStorage
+        localStorage.setItem(
+          "customerLocation",
+          JSON.stringify({
+            latitude: latitude,
+            longitude: longitude,
+          })
+        );
+
+        setLocationLoading(false);
+        setShowLocationPrompt(false);
+      },
+
+      (error) => {
+        console.error("Location Error:", error);
+
+        setLocationLoading(false);
+
+        if (error.code === 1) {
+          console.log("Customer denied location permission.");
+        } else if (error.code === 2) {
+          console.log("Location information is unavailable.");
+        } else if (error.code === 3) {
+          console.log("Location request timed out.");
+        }
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
+
+  useEffect(() => {
+    const savedLocation = localStorage.getItem("customerLocation");
+
+    if (!savedLocation) {
+      setShowLocationPrompt(true);
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -226,12 +226,12 @@ useEffect(() => {
             <FaShoppingBag /> Products
           </button>
 
-<button
-  className={`nav-item ${ activeSection === "nearbysalons" ? "active" : ""}`}
-  onClick={() => setActiveSection("nearbysalons")}
->
-  <FaMapMarkerAlt /> Nearby Salons
-</button>
+          <button
+            className={`nav-item ${activeSection === "nearbysalons" ? "active" : ""}`}
+            onClick={() => setActiveSection("nearbysalons")}
+          >
+            <FaMapMarkerAlt /> Nearby Salons
+          </button>
           <button
             className={`nav-item ${activeSection === "profile" ? "active" : ""}`}
             onClick={() => setActiveSection("profile")}
@@ -272,8 +272,8 @@ useEffect(() => {
         return <CustomerServices customer={customer} />;
       case "products":
         return <CustomerProducts customer={customer} />;
-        case "nearbysalons":
-  return <CustomerNearbySalons customer={customer} />;
+      case "nearbysalons":
+        return <CustomerNearbySalons customer={customer} />;
       case "profile":
         return <CustomerProfile customer={customer} setCustomer={setCustomer} />;
       default:
@@ -281,66 +281,66 @@ useEffect(() => {
     }
   };
   return (
-  <div className="customer-dashboard">
+    <div className="customer-dashboard">
 
-    {renderSidebar()}
+      {renderSidebar()}
 
-    <div className="dashboard-main">
-      {renderContent()}
-    </div>
+      <div className="dashboard-main">
+        {renderContent()}
+      </div>
 
-    {/* ================= LOCATION POPUP ================= */}
-    {showLocationPrompt && (
-      <div className="location-modal-overlay">
+      {/* ================= LOCATION POPUP ================= */}
+      {showLocationPrompt && (
+        <div className="location-modal-overlay">
 
-        <div className="location-modal">
+          <div className="location-modal">
 
-          <div className="location-modal-icon">
-            <FaMapMarkerAlt />
-          </div>
+            <div className="location-modal-icon">
+              <FaMapMarkerAlt />
+            </div>
 
-          <h2>Find Salons Near You</h2>
+            <h2>Find Salons Near You</h2>
 
-          <p>
-            Allow your location to find nearby salons
-            and services available around you.
-          </p>
+            <p>
+              Allow your location to find nearby salons
+              and services available around you.
+            </p>
 
-          <div className="location-modal-buttons">
+            <div className="location-modal-buttons">
 
-            {/* DENY */}
-            <button
-              type="button"
-              className="location-deny-btn"
-              onClick={() => {
-                console.log("Customer denied location access.");
-                setShowLocationPrompt(false);
-              }}
-            >
-              Deny
-            </button>
+              {/* DENY */}
+              <button
+                type="button"
+                className="location-deny-btn"
+                onClick={() => {
+                  console.log("Customer denied location access.");
+                  setShowLocationPrompt(false);
+                }}
+              >
+                Deny
+              </button>
 
-            {/* ALLOW */}
-            <button
-              type="button"
-              className="location-allow-btn"
-              onClick={handleEnableLocation}
-              disabled={locationLoading}
-            >
-              {locationLoading
-                ? "Getting Location..."
-                : "Allow"}
-            </button>
+              {/* ALLOW */}
+              <button
+                type="button"
+                className="location-allow-btn"
+                onClick={handleEnableLocation}
+                disabled={locationLoading}
+              >
+                {locationLoading
+                  ? "Getting Location..."
+                  : "Allow"}
+              </button>
+
+            </div>
 
           </div>
 
         </div>
+      )}
 
-      </div>
-    )}
-
-  </div>
-);
+    </div>
+  );
 
 };
 
