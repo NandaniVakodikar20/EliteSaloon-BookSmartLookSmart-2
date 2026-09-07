@@ -1,5 +1,5 @@
 const express = require('express');
-const routes  = express.Router();
+const routes = express.Router();
 // const upload = require('../middleware/upload');
 const imageUpload = require("../utils/imageUpload");
 const CustomerController = require('../controllers/CustomerController/CustomerController');
@@ -13,7 +13,7 @@ routes.post('/verifyotp', CustomerController.verifyOTP);
 routes.post('/forgotpassword', CustomerController.forgotPassword);
 // routes.post('/matchotp', CustomerController.matchOTP);
 routes.post('/resetpassword', CustomerController.resetPassword);
-routes.post('/resendotp',CustomerController.resendCustomerOtp);
+routes.post('/resendotp', CustomerController.resendCustomerOtp);
 //for imsge
 routes.post('/uploadprofile', imageUpload.single('customerProfileImage'), CustomerController.uploadProfileImage);
 
@@ -26,7 +26,7 @@ routes.post('/uploadprofile', imageUpload.single('customerProfileImage'), Custom
 routes.put(
   '/update-profile',
   authMiddleware,
-  imageUpload.single('customerProfileImage'), 
+  imageUpload.single('customerProfileImage'),
   CustomerController.updateCustomerProfile
 );
 
@@ -42,8 +42,8 @@ routes.put("/cancel-appointment", CustomerController.cancelAppointmentByCustomer
 
 routes.get("/profile", authMiddleware, CustomerController.customerProfile);
 
-routes.get("/nearby-salons", CustomerController.getNearbySalons);
-routes.get("/get-service", CustomerController.getServiceByNearBySalons);
+routes.post("/nearby-salons", CustomerController.getNearbySalons);
+routes.post("/get-service", CustomerController.getServiceByNearBySalons);
 routes.get("/get-product", CustomerController.getProductByNearBySalons);
 
 module.exports = routes;

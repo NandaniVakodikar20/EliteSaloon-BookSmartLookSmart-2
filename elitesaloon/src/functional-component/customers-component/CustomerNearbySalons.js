@@ -154,28 +154,28 @@ const CustomerNearbySalons = () => {
   // FIND NEARBY SALONS
   // ====================================================
 
-  const handleFindNearbySalons = () => {
+  const handleFindNearbySalons = async () => {
 
-    const savedLocation =
-      localStorage.getItem("customerLocation");
+    // const savedLocation =
+    //   localStorage.getItem("customerLocation");
 
 
-    // -----------------------------------------------
-    // LOCATION NOT FOUND
-    // -----------------------------------------------
+    // // -----------------------------------------------
+    // // LOCATION NOT FOUND
+    // // -----------------------------------------------
 
-    if (!savedLocation) {
+    // if (!savedLocation) {
 
-      alert(
-        "Please allow your location first."
-      );
+    //   alert(
+    //     "Please allow your location first."
+    //   );
 
-      console.log(
-        "Customer location not found in localStorage."
-      );
+    //   console.log(
+    //     "Customer location not found in localStorage."
+    //   );
 
-      return;
-    }
+    //   return;
+    // }
 
 
     // -----------------------------------------------
@@ -184,16 +184,17 @@ const CustomerNearbySalons = () => {
 
     try {
 
-      const location =
-        JSON.parse(savedLocation);
+      // const location =
+      //   JSON.parse(savedLocation);
 
 
-      const latitude =
-        Number(location.latitude);
+      // const latitude =
+      //   Number(location.latitude);
 
-      const longitude =
-        Number(location.longitude);
-
+      // const longitude =
+      //   Number(location.longitude);
+      const latitude = Number(21.16885646764516);
+      const longitude = Number(72.86287307739259);
 
       // -----------------------------------------------
       // VALIDATE COORDINATES
@@ -248,6 +249,34 @@ const CustomerNearbySalons = () => {
         longitude,
       ]);
 
+      const response = await fetch("http://localhost:5000/customer/nearby-salons", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          latitude: latitude,
+          longitude: longitude,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Server error: ${response.status}`
+        );
+      }
+
+      // -----------------------------------------------
+      // CONVERT RESPONSE TO JSON
+      // -----------------------------------------------
+
+      const data = await response.json();
+
+      console.log("Nearby Salon Data:", data);
+
+      console.log("Total Salons:", data.totalSalons);
+
+      console.log("Owners:", data.owners);
 
       // -----------------------------------------------
       // SHOW MAP

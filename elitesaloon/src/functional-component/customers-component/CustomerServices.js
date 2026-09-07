@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+
 import { useNavigate } from "react-router-dom";
 import { FaClock, FaRupeeSign, FaMapMarkerAlt } from "react-icons/fa";
 
@@ -18,17 +18,17 @@ const CustomerServices = ({ customer, isPreview }) => {
   const [locationFilter, setLocationFilter] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
 
-  
+
   const sliderSettings = {
-  dots: true,
-  infinite: true,
-  speed: 500,
-  slidesToShow: 1,
-  slidesToScroll: 1,
-  autoplay: true,
-  autoplaySpeed: 2500,
-  arrows: false,
-};
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2500,
+    arrows: false,
+  };
 
   // ✅ FETCH SERVICES
   useEffect(() => {
@@ -42,11 +42,93 @@ const CustomerServices = ({ customer, isPreview }) => {
       try {
         setLoading(true);
 
-        const res = await axios.get(
-          `http://localhost:5000/customer/get-service-customer/${customer.customerPincode}`,
+        const latitude = Number(21.16885646764516);
+        const longitude = Number(72.86287307739259);
+
+        // -----------------------------------------------
+        // VALIDATE COORDINATES
+        // -----------------------------------------------
+
+        if (
+          Number.isNaN(latitude) ||
+          Number.isNaN(longitude)
+        ) {
+
+          console.error(
+            "Invalid customer coordinates."
+          );
+
+          return;
+        }
+
+
+        // -----------------------------------------------
+        // CURRENT LOCATION CONSOLE
+        // -----------------------------------------------
+
+        console.log(
+          "================================="
         );
 
-        setServices(res.data.data || []);
+        console.log(
+          "CUSTOMER CURRENT LOCATION"
+        );
+
+        console.log(
+          "Latitude:",
+          latitude
+        );
+
+        console.log(
+          "Longitude:",
+          longitude
+        );
+
+        console.log(
+          "================================="
+        );
+
+
+        // -----------------------------------------------
+        // SAVE CUSTOMER LOCATION
+        // -----------------------------------------------
+
+        // setCustomerLocation([
+        //   latitude,
+        //   longitude,
+        // ]);
+
+        const response = await fetch("http://localhost:5000/customer/get-service", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            latitude: latitude,
+            longitude: longitude,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Server error: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+
+        console.log("Nearby Salon Data:", data);
+
+        console.log("Total Salons:", data.totalSalons);
+
+        console.log("Services:", data.services);
+
+        // const res = await axios.get(
+        //   `http://localhost:5000/customer/get-service-customer/${customer.customerPincode}`,
+        // );
+
+
+        setServices(response.data.data || []);
       } catch (err) {
         console.log(err);
         setServices([]);
@@ -154,29 +236,29 @@ const CustomerServices = ({ customer, isPreview }) => {
         <div className="customer-service-grid">
           {displayServices.map((service) => (
             <div key={service._id} className="customer-service-card">
-             <div className="service-slider">
-  <Slider {...sliderSettings}>
-    {service.serviceImages?.length > 0 ? (
-      service.serviceImages.map((img, index) => (
-        <div key={index}>
-          <img
-            src={`http://localhost:5000/uploads/serviceImages/${img}`}
-            alt={service.serviceName}
-            className="slider-image"
-          />
-        </div>
-      ))
-    ) : (
-      <div>
-        <img
-          src="http://localhost:5000/uploads/default/defaultService.jpg"
-          alt="default"
-          className="slider-image"
-        />
-      </div>
-    )}
-  </Slider>
-</div>
+              <div className="service-slider">
+                <Slider {...sliderSettings}>
+                  {service.serviceImages?.length > 0 ? (
+                    service.serviceImages.map((img, index) => (
+                      <div key={index}>
+                        <img
+                          src={`http://localhost:5000/uploads/serviceImages/${img}`}
+                          alt={service.serviceName}
+                          className="slider-image"
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <div>
+                      <img
+                        src="http://localhost:5000/uploads/default/defaultService.jpg"
+                        alt="default"
+                        className="slider-image"
+                      />
+                    </div>
+                  )}
+                </Slider>
+              </div>
 
               <div className="service-body">
                 <span className="shop-name">
@@ -226,7 +308,7 @@ const CustomerServices = ({ customer, isPreview }) => {
             className="view-all-btn"
             onClick={() => navigate("/services")}
           >
-           
+
           </button>
         </div>
       )}
