@@ -42,5 +42,9 @@ routes.put("/cancel-appointment", CustomerController.cancelAppointmentByCustomer
 
 routes.get("/profile", authMiddleware, CustomerController.customerProfile);
 
+routes.get("/nearby-salons", CustomerController.getNearbySalons);
+routes.get("/get-service", CustomerController.getServiceByNearBySalons);
+routes.get("/get-product", CustomerController.getProductByNearBySalons);
+
 module.exports = routes;
 

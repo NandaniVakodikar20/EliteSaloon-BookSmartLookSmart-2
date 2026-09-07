@@ -8,6 +8,7 @@ const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
 const generateOTP = require("../../utils/generateOTP");
 const AppointmentModel = require("../../models/AppointmentModel");
 const jwt = require("jsonwebtoken");
+const { findNearbyOwners } = require('../../map-cordinates/CordinatesOptimizeCode');
 
 /**
  * Author : Yogesh Badgujar
@@ -739,5 +740,193 @@ const customerData = {
         message: "Authenticate Profile .... ",
         customer : customerData
   });
+
+};
+
+// exports.getNearbySalons = async (req, res) => {
+
+//     const owners = [];
+//     owners = nearBySalons( req, res);
+//     console.log("Owners of Salons"+ owners + "\n\nOwners Lenght" + owners.length);
+
+//      return res.status(200).json({
+//             success: true,
+//             message: "Nearby salons retrieved successfully",
+
+//             customerLocation: {
+//                 latitude: req.latitude,
+//                 longitude: req.longitude
+//             },
+//             totalSalons: owners.length,
+//             owners : owners
+//         }); 
+
+// }
+
+// const { findNearbyOwners } = require("../services/nearbyService");
+
+exports.getNearbySalons = async (req, res) => {
+
+    try {
+
+        const { latitude, longitude } = req.body;
+
+        if (latitude === undefined || longitude === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: "Latitude and longitude are required"
+            });
+        }
+
+        const owners = await findNearbyOwners(
+            latitude,
+            longitude,
+            5
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Nearby salons retrieved successfully",
+
+            customerLocation: {
+                latitude: Number(latitude),
+                longitude: Number(longitude)
+            },
+
+            totalSalons: owners.length,
+
+            owners: owners
+        });
+
+    } catch (error) {
+
+        console.error("Nearby Salon API Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
+
+exports.getServiceByNearBySalons = async (req, res) => {
+
+  try {
+
+        const { latitude, longitude } = req.body;
+
+        if (latitude === undefined || longitude === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: "Latitude and longitude are required"
+            });
+        }
+
+        const owners = await findNearbyOwners(
+            latitude,
+            longitude,
+            5
+        );
+
+        console.log("owner lenght " + owners.length);
+
+    if (owners.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No salons found in this area",
+      });
+    }
+
+    const ownerIds = owners.map((owner) => owner.ownerId);
+
+    const services = await ServiceModel.find({
+      ownerId: { $in: ownerIds },
+    }).populate(
+      "ownerId",
+      "ownerShopName ownerShopStreet ownerShopDistrict ownerShopCity ownerShopPincode ownerEmail",
+    );
+
+    res.status(200).json({
+      success: true,
+      totalOwners: owners.length,
+      totalServices: services.length,
+      data: services,
+    });
+
+        // return res.status(200).json({
+        //     success: true,
+        //     message: "Nearby salons retrieved successfully",
+        //     customerLocation: {
+        //         latitude: Number(latitude),
+        //         longitude: Number(longitude)
+        //     },
+        //     totalSalons: owners.length,
+        //     owners: owners
+        // });
+
+    } catch (error) {
+
+        console.error("Nearby Salon API Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+
+};
+
+exports.getProductByNearBySalons = async (req, res) => {
+
+  try {
+
+        const { latitude, longitude } = req.body;
+
+        if (latitude === undefined || longitude === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: "Latitude and longitude are required"
+            });
+        }
+
+        const owners = await findNearbyOwners(
+            latitude,
+            longitude,
+            5
+        );
+
+        console.log("owner lenght " + owners.length);
+
+        if (owners.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: "No salons found in this area",
+          });
+        }
+
+        const ownerIds = owners.map((owner) => owner.ownerId);
+
+          const products = await ProductModel.find({
+          ownerId: { $in: ownerIds },
+        }).populate(
+          "ownerId",
+          "ownerShopName ownerEmail ownerShopCity ownerShopPincode",
+        );
+      
+        res.status(200).json({
+          success: true,
+          totalOwners: owners.length,
+          totalProducts: products.length,
+          data: products,
+        });
+    } catch (error) {
+
+        console.error("Nearby Salon API Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
 
 };
