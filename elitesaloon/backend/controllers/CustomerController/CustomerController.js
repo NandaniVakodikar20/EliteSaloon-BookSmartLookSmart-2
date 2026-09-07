@@ -168,11 +168,11 @@ exports.loginCustomer = async (req, res) => {
 
         const token = jwt.sign(
           {
-              // customer : customer.toObject(),
-                customerId: customer._id,
-                customerUsername : customer.customerUsername 
-              },
-          process.env.JWT_SECRET_KEY,{ expiresIn: "1h" }
+            // customer : customer.toObject(),
+            customerId: customer._id,
+            customerUsername: customer.customerUsername
+          },
+          process.env.JWT_SECRET_KEY, { expiresIn: "1h" }
         );
 
         res.status(200).json({
@@ -552,7 +552,7 @@ exports.getProductsForCustomerByPin = async (req, res) => {
   try {
     const { customerPincode } = req.params;
 
-    if (!customerPincode) {0
+    if (!customerPincode) {
       return res.status(400).json({
         success: false,
         message: "Customer pincode is required",
@@ -619,7 +619,7 @@ exports.cancelAppointmentByCustomer = async (req, res) => {
       return res.status(404).json({
         message: "Appointment not found",
       });
-    } 
+    }
 
     if (appointment.appointmentStatus === "COMPLETED") {
       return res.status(400).json({
@@ -711,15 +711,15 @@ exports.resendCustomerOtp = async (req, res) => {
   }
 };
 
-exports.customerProfile = async (req, res) => { 
+exports.customerProfile = async (req, res) => {
 
   console.log("Authenticate Profile .... ");
   const customerId = req.data.customerId;
-   
+
   const customer = await CustomerModel.findById(customerId);
   console.log("Customer Data print :", customer);
 
-const customerData = {
+  const customerData = {
     customerName: customer.customerName,
     customerEmail: customer.customerEmail,
     customerMobile: customer.customerMobile,
@@ -733,11 +733,12 @@ const customerData = {
     customerState: customer.customerState,
     customerUsername: customer.customerUsername,
     customerProfileImage: customer.customerProfileImage
-};
+  };
 
   return res.status(200).json({
-        message: "Authenticate Profile .... ",
-        customer : customerData
+    message: "Authenticate Profile .... ",
+    customer: customerData
   });
 
 };
+

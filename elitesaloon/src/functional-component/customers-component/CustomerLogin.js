@@ -86,14 +86,18 @@ const CustomerLogin = () => {
         localStorage.setItem("customerId", token.customerId);
         // localStorage.setItem("customer", JSON.stringify(customer));
 
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful 🎉",
-          text: "Welcome " + customerUsername,
-        });
+       await Swal.fire({
+  icon: "success",
+  title: "Login Successful 🎉",
+  text: "Welcome " + customerUsername,
+  confirmButtonText: "Continue",
+});
 
-        console.log("Login Success:", token.customerUsername);
-        navigate("/customerdashboard",{ replace : true});
+console.log("Login Success:", token.customerUsername);
+
+navigate("/customerdashboard", {
+  replace: true,
+});
         // navigate("/customerdashboard", { state: { customer }, replace: true  });
       } else {
         Swal.fire({
