@@ -5,6 +5,7 @@ import CustomerProfile from "./CustomerProfile";
 import CustomerAppointments from "./CustomerAppointments";
 import CustomerServices from "./CustomerServices";
 import CustomerProducts from "./CustomerProducts";
+import CustomerNearbySalons from "./CustomerNearbySalons";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import {
@@ -221,11 +222,16 @@ useEffect(() => {
           <button
             className={`nav-item ${activeSection === "products" ? "active" : ""}`}
             onClick={() => setActiveSection("products")}
-          >s
+          >
             <FaShoppingBag /> Products
           </button>
 
-
+<button
+  className={`nav-item ${ activeSection === "nearbysalons" ? "active" : ""}`}
+  onClick={() => setActiveSection("nearbysalons")}
+>
+  <FaMapMarkerAlt /> Nearby Salons
+</button>
           <button
             className={`nav-item ${activeSection === "profile" ? "active" : ""}`}
             onClick={() => setActiveSection("profile")}
@@ -261,13 +267,13 @@ useEffect(() => {
           />
         );
       case "bookappointments":
-        // Jab activeSection 'bookappointments' hogi, tabhi ye component load hoga
-        // Aur load hote hi iska useEffect Modal khol dega
         return <CustomerAppointments />;
       case "services":
         return <CustomerServices customer={customer} />;
       case "products":
         return <CustomerProducts customer={customer} />;
+        case "nearbysalons":
+  return <CustomerNearbySalons customer={customer} />;
       case "profile":
         return <CustomerProfile customer={customer} setCustomer={setCustomer} />;
       default:

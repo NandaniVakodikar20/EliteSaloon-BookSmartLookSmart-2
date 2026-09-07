@@ -2177,3 +2177,643 @@ min-height: 480px; /* Perfect balanced height */
     width: 100%;
   }
 }
+
+/* =========================================================
+   ELITESALON - NEARBY SALONS
+   ========================================================= */
+
+
+/* =========================================================
+   MAIN NEARBY SALONS SECTION
+   ========================================================= */
+
+.nearby-salons-section {
+  width: 100%;
+  min-height: 100%;
+  padding: 30px 40px;
+  box-sizing: border-box;
+  background: #f8f7f6;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.nearby-salons-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.nearby-salons-header > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.nearby-salons-header h1 {
+  margin: 0;
+  padding: 0;
+
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 700;
+
+  color: #1f2937;
+}
+
+.nearby-salons-header p {
+  margin: 8px 0 0;
+
+  font-size: 16px;
+  line-height: 1.5;
+
+  color: #707070;
+}
+
+.nearby-header-icon {
+  font-size: 34px;
+  color: #c2185b;
+
+  margin-right: 8px;
+}
+
+
+/* =========================================================
+   FIND SALON CARD
+   ========================================================= */
+
+.find-salon-card {
+  width: 100%;
+  min-height: 430px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  border: 1px solid #f0dfe5;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.06);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 50px 30px;
+
+  transition: all 0.3s ease;
+}
+
+.find-salon-card:hover {
+  box-shadow:
+    0 12px 30px rgba(194, 24, 91, 0.08);
+}
+
+
+/* =========================================================
+   LOCATION SEARCH ICON
+   ========================================================= */
+
+.find-salon-icon {
+  width: 82px;
+  height: 82px;
+
+  border-radius: 50%;
+
+  background: #f8e6ec;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 22px;
+
+  color: #c2185b;
+
+  font-size: 34px;
+
+  box-shadow:
+    0 5px 15px rgba(194, 24, 91, 0.10);
+}
+
+.find-salon-icon svg {
+  display: block;
+}
+
+
+/* =========================================================
+   FIND SALON TITLE
+   ========================================================= */
+
+.find-salon-card h2 {
+  margin: 0 0 10px;
+
+  color: #1f2937;
+
+  font-size: 25px;
+  line-height: 1.3;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   FIND SALON DESCRIPTION
+   ========================================================= */
+
+.find-salon-card p {
+  max-width: 540px;
+
+  margin: 0 0 28px;
+
+  color: #777777;
+
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   FIND NEARBY SALONS BUTTON
+   ========================================================= */
+
+.find-nearby-salon-btn {
+  min-width: 210px;
+
+  padding: 13px 23px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  border: none;
+  outline: none;
+
+  border-radius: 8px;
+
+  background: #c2185b;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 15px rgba(194, 24, 91, 0.22);
+
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.3s ease;
+}
+
+.find-nearby-salon-btn svg {
+  font-size: 16px;
+}
+
+.find-nearby-salon-btn:hover {
+  background: #a9154d;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px rgba(194, 24, 91, 0.30);
+}
+
+.find-nearby-salon-btn:active {
+  transform: translateY(0);
+
+  box-shadow:
+    0 4px 10px rgba(194, 24, 91, 0.20);
+}
+
+
+/* =========================================================
+   MAP MAIN CONTAINER
+   ========================================================= */
+
+.nearby-map-container {
+  width: 100%;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+
+  border: 1px solid #f0dfe5;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+
+/* =========================================================
+   MAP HEADER
+   ========================================================= */
+
+.map-header {
+  width: 100%;
+
+  min-height: 72px;
+
+  box-sizing: border-box;
+
+  padding: 18px 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: #1f2937;
+
+  border-bottom: 3px solid #c2185b;
+}
+
+
+/* Header title */
+
+.map-header h2 {
+  margin: 0;
+
+  color: #ffffff !important;
+
+  font-size: 22px;
+  line-height: 1.3;
+
+  font-weight: 700;
+}
+
+
+/* Header description */
+
+.map-header p {
+  margin: 5px 0 0;
+
+  color: #d1d5db !important;
+
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   LEAFLET MAP
+   ========================================================= */
+
+.nearby-leaflet-map {
+  width: 100%;
+
+  height: 500px;
+
+  z-index: 1;
+}
+
+
+/* =========================================================
+   LEAFLET POPUP
+   ========================================================= */
+
+.nearby-leaflet-map .leaflet-popup-content-wrapper {
+  border-radius: 10px;
+}
+
+.nearby-leaflet-map .leaflet-popup-content {
+  margin: 13px 16px;
+
+  font-family: inherit;
+
+  color: #333333;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.nearby-leaflet-map .leaflet-popup-tip {
+  background: #ffffff;
+}
+
+
+/* =========================================================
+   LEAFLET ZOOM BUTTON
+   ========================================================= */
+
+.nearby-leaflet-map .leaflet-control-zoom {
+  border: none !important;
+
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.nearby-leaflet-map .leaflet-control-zoom a {
+  color: #c2185b !important;
+
+  font-weight: 700;
+
+  border-color: #eeeeee !important;
+}
+
+.nearby-leaflet-map .leaflet-control-zoom a:hover {
+  background: #f8e6ec !important;
+
+  color: #a9154d !important;
+}
+
+
+/* =========================================================
+   LEAFLET ATTRIBUTION
+   ========================================================= */
+
+.nearby-leaflet-map .leaflet-control-attribution {
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   LOCATION MARKER POPUP
+   ========================================================= */
+
+.nearby-location-popup {
+  text-align: center;
+}
+
+.nearby-location-popup strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #c2185b;
+
+  font-size: 15px;
+}
+
+
+/* =========================================================
+   LOADING / EMPTY STATE
+   ========================================================= */
+
+.nearby-map-loading {
+  height: 500px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #fafafa;
+
+  color: #777777;
+}
+
+.nearby-map-loading svg {
+  font-size: 40px;
+
+  color: #c2185b;
+
+  margin-bottom: 15px;
+}
+
+.nearby-map-loading p {
+  margin: 0;
+
+  font-size: 15px;
+}
+
+
+/* =========================================================
+   OPTIONAL: BACK BUTTON
+   ========================================================= */
+
+.nearby-back-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 9px 16px;
+
+  margin-top: 15px;
+
+  border: 1px solid #c2185b;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #c2185b;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+.nearby-back-btn:hover {
+  background: #c2185b;
+
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 992px) {
+
+  .nearby-salons-section {
+    padding: 25px 25px;
+  }
+
+  .nearby-salons-header h1 {
+    font-size: 28px;
+  }
+
+  .find-salon-card {
+    min-height: 400px;
+  }
+
+  .nearby-leaflet-map {
+    height: 450px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .nearby-salons-section {
+    padding: 20px 15px;
+  }
+
+  .nearby-salons-header {
+    margin-bottom: 20px;
+  }
+
+  .nearby-salons-header h1 {
+    font-size: 25px;
+  }
+
+  .nearby-salons-header p {
+    font-size: 14px;
+  }
+
+  .nearby-header-icon {
+    font-size: 28px;
+
+    margin-right: 0;
+  }
+
+  .find-salon-card {
+    min-height: 360px;
+
+    padding: 40px 20px;
+
+    border-radius: 15px;
+  }
+
+  .find-salon-icon {
+    width: 70px;
+    height: 70px;
+
+    font-size: 29px;
+  }
+
+  .find-salon-card h2 {
+    font-size: 21px;
+  }
+
+  .find-salon-card p {
+    max-width: 400px;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+  }
+
+  .find-nearby-salon-btn {
+    min-width: 200px;
+
+    padding: 12px 20px;
+  }
+
+  .nearby-map-container {
+    border-radius: 15px;
+  }
+
+  .map-header {
+    min-height: 68px;
+
+    padding: 15px 18px;
+  }
+
+  .map-header h2 {
+    font-size: 19px;
+  }
+
+  .map-header p {
+    font-size: 13px;
+  }
+
+  .nearby-leaflet-map {
+    height: 400px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .nearby-salons-section {
+    padding: 15px 12px;
+  }
+
+  .nearby-salons-header h1 {
+    font-size: 22px;
+  }
+
+  .nearby-salons-header p {
+    font-size: 13px;
+  }
+
+  .nearby-header-icon {
+    font-size: 24px;
+  }
+
+  .find-salon-card {
+    min-height: 330px;
+
+    padding: 30px 15px;
+  }
+
+  .find-salon-icon {
+    width: 65px;
+    height: 65px;
+
+    font-size: 26px;
+
+    margin-bottom: 18px;
+  }
+
+  .find-salon-card h2 {
+    font-size: 19px;
+  }
+
+  .find-salon-card p {
+    font-size: 13px;
+
+    margin-bottom: 22px;
+  }
+
+  .find-nearby-salon-btn {
+    width: 100%;
+
+    max-width: 250px;
+  }
+
+  .map-header {
+    padding: 14px 15px;
+  }
+
+  .map-header h2 {
+    font-size: 17px;
+  }
+
+  .map-header p {
+    font-size: 12px;
+  }
+
+  .nearby-leaflet-map {
+    height: 350px;
+  }
+
+}
