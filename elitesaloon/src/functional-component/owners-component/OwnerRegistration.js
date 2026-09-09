@@ -48,7 +48,7 @@ const OwnerRegistration = () => {
   const [showPopup, setShowPopup] = useState(false);
 
   const [showMap, setShowMap] = useState(false);
-
+  const [selectedPosition, setSelectedPosition] = useState(null);
   const [location, setLocation] = useState({
     latitude: "",
     longitude: "",
@@ -155,48 +155,82 @@ const OwnerRegistration = () => {
   };
   function LocationMarker({
     locationIcon,
-    setForm,
     setLocation,
-    setShowMap,
     getAddressFromLocation,
+    selectedPosition,
+    setSelectedPosition,
   }) {
-    const [position, setPosition] = useState(null);
 
     useMapEvents({
+
       click: async (e) => {
+
         const { lat, lng } = e.latlng;
 
         console.log("MAP CLICKED");
+
         console.log("Latitude:", lat);
+
         console.log("Longitude:", lng);
 
-        // Show marker
-        setPosition(e.latlng);
 
-        // Save coordinates
+        // ================================================
+        // ONLY CHOOSE LOCATION GETS MARKER
+        // ================================================
+
+        setSelectedPosition({
+          lat: lat,
+          lng: lng,
+        });
+
+
+        // ================================================
+        // SAVE COORDINATES
+        // ================================================
+
         setLocation({
           latitude: lat,
           longitude: lng,
         });
 
-        // Get address and fill form
-        await getAddressFromLocation(lat, lng);
 
-        // Close map after location is selected
-        setShowMap(false);
+        // ================================================
+        // GET ADDRESS
+        // ================================================
+
+        await getAddressFromLocation(
+          lat,
+          lng
+        );
+
       },
+
     });
 
-    return position ? (
-      <Marker position={position} icon={locationIcon}>
+
+    return selectedPosition ? (
+
+      <Marker
+        position={selectedPosition}
+        icon={locationIcon}
+      >
+
         <Popup>
+
           <b>Selected Location</b>
+
           <br />
-          Latitude: {position.lat}
+
+          Latitude: {selectedPosition.lat}
+
           <br />
-          Longitude: {position.lng}
+
+          Longitude: {selectedPosition.lng}
+
         </Popup>
+
       </Marker>
+
     ) : null;
   }
   // const [postOffices, setPostOffices] = useState([]);
@@ -256,6 +290,7 @@ const OwnerRegistration = () => {
 
   /* ================= GPS Handle ================== */
   const handleGPS = () => {
+
     if (!navigator.geolocation) {
       setErrors((prev) => ({
         ...prev,
@@ -266,16 +301,27 @@ const OwnerRegistration = () => {
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
+
         const { latitude, longitude } = position.coords;
 
         console.log("GPS Latitude:", latitude);
         console.log("GPS Longitude:", longitude);
 
-        setLocation([latitude, longitude]);
+        // Save GPS location
+        setLocation({
+          latitude: latitude,
+          longitude: longitude,
+        });
+
         setShowPopup(false);
 
-        await getAddressFromLocation(latitude, longitude);
+        // Get address
+        await getAddressFromLocation(
+          latitude,
+          longitude
+        );
       },
+
       (error) => {
         console.error("GPS Error:", error);
 
@@ -284,6 +330,7 @@ const OwnerRegistration = () => {
           location: "Unable to get your current location.",
         }));
       },
+
       {
         enableHighAccuracy: true,
         timeout: 10000,
@@ -674,10 +721,10 @@ const OwnerRegistration = () => {
 
                   <LocationMarker
                     locationIcon={locationIcon}
-                    setForm={setForm}
                     setLocation={setLocation}
-                    setShowMap={setShowMap}
                     getAddressFromLocation={getAddressFromLocation}
+                    selectedPosition={selectedPosition}
+                    setSelectedPosition={setSelectedPosition}
                   />
                 </MapContainer>
               </div>
