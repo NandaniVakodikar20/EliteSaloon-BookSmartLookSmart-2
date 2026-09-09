@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
+
 const CustomerBookingForm = () => {
   const [salons, setSalons] = useState([]);
   const [services, setServices] = useState([]);
@@ -16,6 +17,8 @@ const CustomerBookingForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [prevSalonId, setPrevSalonId] = useState("");
+    const [showLocationPrompt, setShowLocationPrompt] = useState(false);
+    const [locationLoading, setLocationLoading] = useState(false);
 
   const [form, setForm] = useState({
     salonId: "",
@@ -25,10 +28,17 @@ const CustomerBookingForm = () => {
     time: "",
   });
 
-  const customer = JSON.parse(localStorage.getItem("customer"));
-  const customerPincode = customer?.customerPincode;
+  // const customer = JSON.parse(localStorage.getItem("customer"));
+//   const customerPincode = customer?.customerPincode;
 
-  console.log("Customer Pincode:", customerPincode);
+//   const customerData = location.state?.customer;
+
+// const pincode = customer?.customerPincode
+//   ? Number(customer.customerPincode)
+//   : customerData?.customerPincode
+//     ? Number(customerData.customerPincode)
+//     : "";
+//   console.log("Customer Pincode:", pincode);
 
   //serive
   useEffect(() => {
@@ -46,21 +56,110 @@ const CustomerBookingForm = () => {
   // ✅ FETCH SALONS
   // ===============================
   useEffect(() => {
+
+    const location = localStorage.getItem("customerLocation");
+
+
     const fetchSalons = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:5000/appointment/get-salon/${customerPincode}`,
-        );
 
-        const data = await res.json();
+          if(location){
+            const parsedLocation = JSON.parse(location);
+            const latitude = Number(parsedLocation.latitude);
+            const longitude = Number(parsedLocation.longitude);
+            
+            if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+              console.error("Invalid customer coordinates.");
+              return;
+            }
 
-        console.log("Saloons Available :", data);
+              const response = await fetch("http://localhost:5000/customer/nearby-salons", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                latitude: latitude,
+                longitude: longitude,
+              }),
+            });
 
-        if (data.success) {
-          setSalons(data.data);
-        } else {
-          setSalons([]);
+            if (!response.ok) {
+              throw new Error(
+                `Server error: ${response.status}`
+              );
+            }
+
+            const data = await response.json();
+            console.log("Nearby Salon Product:", data);
+            console.log("Id Print :",data.owners.map(owner => owner._id));
+            setSalons(data.owners || []);
+            
+        }else{
+
+            setLocationLoading(true);
+
+    // navigator.geolocation.getCurrentPosition(
+    //   (position) => {
+    //     const latitude = position.coords.latitude;
+    //     const longitude = position.coords.longitude;
+
+    //     console.log("***CUSTOMER LOCATION On Dshboard***");
+    //     console.log("Latitude:", latitude);
+    //     console.log("Longitude:", longitude);
+       
+    //     // Save location in localStorage
+    //     localStorage.setItem(
+    //       "customerLocation",
+    //       JSON.stringify({
+    //         latitude: latitude,
+    //         longitude: longitude,
+    //       })
+    //     );
+
+    //     setLocationLoading(false);
+    //     setShowLocationPrompt(false);
+    //   },
+
+    //   (error) => {
+    //     console.error("Location Error:", error);
+
+    //     setLocationLoading(false);
+
+    //     if (error.code === 1) {
+    //       console.log("Customer denied location permission.");
+    //     } else if (error.code === 2) {
+    //       console.log("Location information is unavailable.");
+    //     } else if (error.code === 3) {
+    //       console.log("Location request timed out.");
+    //     }
+    //   },
+
+    //   {
+    //     enableHighAccuracy: true,
+    //     timeout: 10000,
+    //     maximumAge: 0,
+    //   }
+    // );
+              // console.log("Customer location not found . get salons by pincode");
+              // const res = await fetch(
+              //   `http://localhost:5000/appointment/get-salon/${pincode}`,
+              // );
+
+              // const data = await res.json();
+
+              // console.log("Saloons Available :", data);
+              // setSalons(data.data || []);
+
+
+              // if (data.success) {
+              //   setSalons(data.data);
+              // } else {
+              //   setSalons([]);
+              // }
+
         }
+
       } catch (err) {
         console.log("Salon fetch error:", err);
         setSalons([]);
@@ -68,7 +167,7 @@ const CustomerBookingForm = () => {
     };
 
     fetchSalons();
-  }, [customerPincode]);
+  }, []);
 
   // ===============================
   // FETCH SERVICES + STAFF
@@ -94,10 +193,12 @@ const CustomerBookingForm = () => {
         }));
       }
 
-      console.log("Salon Id :", form.salonId);
-
+      // console.log("Salon Id :", form.salonId);
+      //  console.log("Salon :", form);
       const fetchData = async () => {
         try {
+
+          console.log();
           // 👉 Fetch Services
           const serviceResponse = await fetch(
             `http://localhost:5000/owner/allservices/${form.salonId}`,
@@ -276,7 +377,7 @@ const CustomerBookingForm = () => {
               <option value="">Select Salon</option>
               {salons.length > 0 ? (
                 salons.map((s) => (
-                  <option key={s._id} value={s._id}>
+                  <option key={s.ownerId} value={s.ownerId}>
                     {s.ownerShopName} - {s.ownerName}
                   </option>
                 ))

@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 
 const CustomerDashboard = () => {
+  
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -40,6 +41,7 @@ const CustomerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+
   useEffect(() => {
 
     const token = localStorage.getItem("token");
@@ -97,13 +99,10 @@ const CustomerDashboard = () => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
 
-        console.log("====================================");
-        console.log("       CUSTOMER LOCATION");
-        console.log("====================================");
+        console.log("***CUSTOMER LOCATION On Dshboard***");
         console.log("Latitude:", latitude);
         console.log("Longitude:", longitude);
-        console.log("====================================");
-
+       
         // Save location in localStorage
         localStorage.setItem(
           "customerLocation",

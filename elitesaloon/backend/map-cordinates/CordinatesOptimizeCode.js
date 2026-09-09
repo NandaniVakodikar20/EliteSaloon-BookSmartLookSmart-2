@@ -170,6 +170,7 @@ const findNearbyOwners = async (latitude, longitude, radiusKm = 5) => {
         "_id ownerName ownerShopName ownerShopStreet ownerShopCity ownerShopDistrict ownerShopPincode ownerShopState ownerLatitude ownerLongitude ownerProfileImage"
     );
 
+    console.log("Owner", owners);
     const EARTH_RADIUS_KM = 6371;
 
     const nearbySalons = [];

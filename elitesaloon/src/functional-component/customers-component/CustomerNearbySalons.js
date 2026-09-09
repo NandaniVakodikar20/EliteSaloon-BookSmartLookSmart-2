@@ -193,8 +193,8 @@ const CustomerNearbySalons = () => {
 
             // const longitude =
             //   Number(location.longitude);
-            const latitude = Number(21.16885646764516);
-            const longitude = Number(72.86287307739259);
+            const latitude = Number(21.163876233348866);
+            const longitude = Number(72.84124816050632);
 
             // -----------------------------------------------
             // VALIDATE COORDINATES

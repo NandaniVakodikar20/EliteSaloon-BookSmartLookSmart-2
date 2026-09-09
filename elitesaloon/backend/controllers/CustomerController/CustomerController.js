@@ -538,7 +538,7 @@ exports.getServiceForCustomerByPin = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalServices: services.length,
-      data: services,
+      services: services,
     });
   } catch (error) {
     console.error(error);
@@ -590,7 +590,7 @@ exports.getProductsForCustomerByPin = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalProducts: products.length,
-      data: products,
+      products: products,
     });
   } catch (error) {
     console.error(error);
@@ -850,7 +850,7 @@ exports.getServiceByNearBySalons = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalServices: services.length,
-      data: services,
+      services : services,
     });
 
     // return res.status(200).json({
@@ -917,7 +917,7 @@ exports.getProductByNearBySalons = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalProducts: products.length,
-      data: products,
+      products : products,
     });
   } catch (error) {
 
