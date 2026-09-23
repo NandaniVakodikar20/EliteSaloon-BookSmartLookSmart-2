@@ -44,7 +44,7 @@ routes.get("/profile", authMiddleware, CustomerController.customerProfile);
 
 routes.post("/nearby-salons", CustomerController.getNearbySalons);
 routes.post("/get-service", CustomerController.getServiceByNearBySalons);
-routes.get("/get-product", CustomerController.getProductByNearBySalons);
+routes.post("/get-product", CustomerController.getProductByNearBySalons);
 
 module.exports = routes;
 

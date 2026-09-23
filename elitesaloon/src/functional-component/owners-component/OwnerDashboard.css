@@ -2039,3 +2039,716 @@ border:1px solid #ccc;
         font-size: 13px;
     }
 }
+
+
+/* subscription */
+/* =========================================
+   ELITE SALOON SUBSCRIPTION PAGE
+========================================= */
+
+:root {
+  --gold: #d4af37;
+  --rose-gold: #b76e79;
+  --burgundy: #800020;
+  --dark: #1a1a1a;
+  --light: #fafafa;
+  --text: #333333;
+  --muted: #777777;
+
+  --gold-gradient:
+    linear-gradient(
+      135deg,
+      #d4af37,
+      #b76e79
+    );
+
+  --burgundy-gradient:
+    linear-gradient(
+      135deg,
+      #5a0014,
+      #800020
+    );
+}
+
+
+/* =========================================
+   PAGE
+========================================= */
+
+.subscription-page {
+  min-height: 100vh;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fafafa 0%,
+      #f8f5f2 100%
+    );
+
+  font-family: "Poppins", sans-serif;
+
+  color: var(--text);
+}
+
+
+/* =========================================
+   TOP HEADER
+========================================= */
+
+.subscription-top {
+  height: 90px;
+
+  background: var(--dark);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 0 70px;
+
+  box-shadow:
+    0 4px 15px
+    rgba(0, 0, 0, 0.12);
+}
+
+
+.subscription-logo {
+  font-family:
+    "Playfair Display",
+    Georgia,
+    serif;
+
+  font-size: 32px;
+
+  font-weight: 600;
+
+  color: white;
+}
+
+
+.subscription-logo span {
+  color: var(--gold);
+
+  font-style: italic;
+
+  margin-right: 5px;
+}
+
+
+.subscription-top p {
+  color: #999999;
+
+  letter-spacing: 3px;
+
+  font-size: 12px;
+
+  margin: 0;
+}
+
+
+/* =========================================
+   MAIN CONTAINER
+========================================= */
+
+.subscription-container {
+  max-width: 1200px;
+
+  margin: auto;
+
+  padding:
+    55px 25px 60px;
+}
+
+
+/* =========================================
+   HEADING
+========================================= */
+
+.subscription-heading {
+  text-align: center;
+
+  margin-bottom: 45px;
+}
+
+
+.subscription-heading h1 {
+  margin: 0;
+
+  font-family:
+    "Playfair Display",
+    Georgia,
+    serif;
+
+  font-size: 38px;
+
+  color: var(--burgundy);
+
+  font-weight: 600;
+}
+
+
+.subscription-heading p {
+  margin-top: 12px;
+
+  color: var(--muted);
+
+  font-size: 14px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================
+   PLANS CONTAINER
+========================================= */
+
+.plans-container {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 25px;
+}
+
+
+/* =========================================
+   PLAN CARD
+========================================= */
+
+.plan-card {
+  position: relative;
+
+  background: white;
+
+  border-radius: 14px;
+
+  padding:
+    35px 28px 30px;
+
+  text-align: center;
+
+  border:
+    1px solid #eeeeee;
+
+  box-shadow:
+    0 5px 20px
+    rgba(0, 0, 0, 0.07);
+
+  transition:
+    all 0.35s ease;
+
+  overflow: hidden;
+}
+
+
+.plan-card:hover {
+  transform:
+    translateY(-8px);
+
+  box-shadow:
+    0 15px 35px
+    rgba(0, 0, 0, 0.12);
+
+  border-color:
+    rgba(212, 175, 55, 0.5);
+}
+
+
+.plan-card.selected {
+  border:
+    2px solid var(--gold);
+
+  transform:
+    translateY(-7px);
+
+  box-shadow:
+    0 12px 30px
+    rgba(212, 175, 55, 0.22);
+}
+
+
+/* =========================================
+   MOST POPULAR BADGE
+========================================= */
+
+.popular-badge {
+  position: absolute;
+
+  top: 0;
+
+  right: 0;
+
+  background:
+    var(--gold-gradient);
+
+  color: white;
+
+  padding:
+    8px 16px;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  letter-spacing: 1px;
+
+  border-bottom-left-radius: 8px;
+}
+
+
+/* =========================================
+   PLAN ICON
+========================================= */
+
+.plan-icon {
+  width: 65px;
+
+  height: 65px;
+
+  border-radius: 50%;
+
+  margin:
+    5px auto 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background:
+    rgba(212, 175, 55, 0.12);
+
+  color:
+    var(--gold);
+
+  font-size: 25px;
+
+  transition: 0.3s;
+}
+
+
+.plan-card:hover .plan-icon,
+.plan-card.selected .plan-icon {
+
+  background:
+    var(--gold-gradient);
+
+  color: white;
+}
+
+
+/* =========================================
+   PLAN TITLE
+========================================= */
+
+.plan-card h2 {
+  margin: 0;
+
+  font-family:
+    "Playfair Display",
+    Georgia,
+    serif;
+
+  font-size: 25px;
+
+  color:
+    var(--burgundy);
+}
+
+
+.plan-duration {
+  margin:
+    6px 0 18px;
+
+  color:
+    var(--muted);
+
+  font-size: 13px;
+}
+
+
+/* =========================================
+   PRICE
+========================================= */
+
+.plan-price {
+  font-size: 46px;
+
+  font-weight: 700;
+
+  color:
+    var(--dark);
+
+  margin-bottom: 10px;
+}
+
+
+.plan-price span {
+  font-size: 24px;
+
+  color:
+    var(--gold);
+
+  margin-right: 3px;
+}
+
+
+.plan-description {
+  font-size: 13px;
+
+  color:
+    var(--muted);
+
+  margin-bottom: 25px;
+}
+
+
+/* =========================================
+   FEATURES
+========================================= */
+
+.features {
+
+  border-top:
+    1px solid #eeeeee;
+
+  padding-top: 20px;
+
+  text-align: left;
+
+  margin-bottom: 25px;
+}
+
+
+.features div {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 13px;
+
+  color:
+    #555555;
+
+  font-size: 13px;
+}
+
+
+.features svg {
+
+  color:
+    var(--gold);
+
+  font-size: 12px;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================
+   SELECT PLAN BUTTON
+========================================= */
+
+.plan-btn {
+
+  width: 100%;
+
+  height: 46px;
+
+  border:
+    1px solid var(--burgundy);
+
+  border-radius: 6px;
+
+  background: white;
+
+  color:
+    var(--burgundy);
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    all 0.3s ease;
+}
+
+
+.plan-btn:hover,
+.plan-btn.selected-btn {
+
+  background:
+    var(--burgundy);
+
+  color: white;
+
+  box-shadow:
+    0 5px 15px
+    rgba(128, 0, 32, 0.20);
+}
+
+
+/* =========================================
+   PAYMENT SECTION
+========================================= */
+
+.payment-section {
+
+  margin-top: 35px;
+
+  text-align: center;
+
+  background: white;
+
+  padding:
+    25px;
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 5px 20px
+    rgba(0, 0, 0, 0.06);
+
+  border:
+    1px solid #eeeeee;
+}
+
+
+/* =========================================
+   SELECTED PLAN
+========================================= */
+
+.selected-plan {
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+
+  font-size: 14px;
+
+  color:
+    var(--muted);
+}
+
+
+.selected-plan strong {
+
+  color:
+    var(--burgundy);
+}
+
+
+.selected-plan b {
+
+  color:
+    var(--gold);
+
+  font-size: 17px;
+}
+
+
+/* =========================================
+   PAYMENT BUTTON
+========================================= */
+
+.payment-btn {
+
+  min-width: 330px;
+
+  height: 50px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background:
+    var(--burgundy-gradient);
+
+  color: white;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    all 0.3s ease;
+
+  box-shadow:
+    0 6px 18px
+    rgba(128, 0, 32, 0.20);
+}
+
+
+.payment-btn:hover:not(:disabled) {
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 9px 25px
+    rgba(128, 0, 32, 0.28);
+}
+
+
+.payment-btn:disabled {
+
+  background:
+    #cccccc;
+
+  color:
+    #777777;
+
+  cursor:
+    not-allowed;
+
+  box-shadow: none;
+}
+
+
+/* =========================================
+   SECURE PAYMENT TEXT
+========================================= */
+
+.secure-text {
+
+  margin:
+    12px 0 0;
+
+  color:
+    #999999;
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.subscription-footer {
+
+  text-align: center;
+
+  padding:
+    20px;
+
+  border-top:
+    1px solid #eeeeee;
+
+  color:
+    #999999;
+
+  font-size: 12px;
+
+  background: white;
+}
+
+
+/* =========================================
+   RESPONSIVE - TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+  .plans-container {
+
+    grid-template-columns: 1fr;
+
+  }
+
+  .plan-card {
+
+    max-width: 450px;
+
+    width: 100%;
+
+    margin: auto;
+
+  }
+
+}
+
+
+/* =========================================
+   RESPONSIVE - MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .subscription-top {
+
+    height: 75px;
+
+    padding:
+      0 20px;
+
+  }
+
+
+  .subscription-logo {
+
+    font-size: 25px;
+
+  }
+
+
+  .subscription-top p {
+
+    display: none;
+
+  }
+
+
+  .subscription-container {
+
+    padding:
+      40px 15px;
+
+  }
+
+
+  .subscription-heading h1 {
+
+    font-size: 29px;
+
+  }
+
+
+  .subscription-heading p {
+
+    font-size: 13px;
+
+  }
+
+
+  .payment-btn {
+
+    min-width: 100%;
+
+  }
+
+
+  .selected-plan {
+
+    flex-wrap: wrap;
+
+  }
+
+}

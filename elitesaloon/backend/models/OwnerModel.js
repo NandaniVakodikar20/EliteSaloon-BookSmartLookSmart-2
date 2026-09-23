@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const ownerSchema = new mongoose.Schema({   
 
     ownerName: {
@@ -11,25 +10,20 @@ const ownerSchema = new mongoose.Schema({
     ownerMobile: {
         type: String, required: true
     },
-
     ownerShopName: {
         type: String, required: true
     },
-
     ownerShopCertificate: {
         type: String, required: true
     },
-
     shopFrontPhoto: {
         type: String,
         required: true
     },
-
     shopInsidePhoto: {
         type: String,
         required: true
     },
-
     ownerShopStreet: {
         type: String, required: true
     },
@@ -51,31 +45,24 @@ const ownerSchema = new mongoose.Schema({
     ownerLatitude: {
         type: Number, required: true
     },
-
     ownerLongitude: {
         type: Number, required: true
     },
-
     ownerOTP : {
         type: String, default: null
     },
-
     ownerVerified : {
         type: Boolean, default: false
     },
-
     ownerAccountStatus : {
         type: String, default: "DEACTIVE"
     },
-
     ownerApprovedStatus :{
         type: String, default: "PENDING"
     },
-
     ownerPassword: {
         type: String, required: true
     },
-
     ownerCreatedAt: {
         type: Date, default: Date.now
     },
@@ -85,9 +72,6 @@ const ownerSchema = new mongoose.Schema({
     ownerProfileImage: {
         type: String, required: true
     }
-
 });
-
 const Owner = mongoose.model('Owner', ownerSchema);
-
 module.exports = Owner;

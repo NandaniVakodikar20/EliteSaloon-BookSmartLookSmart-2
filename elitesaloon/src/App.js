@@ -37,6 +37,7 @@ import OwnerRegistration from "./functional-component/owners-component/OwnerRegi
 import OwnerDashboard from "./functional-component/owners-component/OwnerDashboard";
 import OwnerOtpVerify from "./functional-component/owners-component/OwnerOtpVerify";
 import OwnerLogin from "./functional-component/owners-component/OwnerLogin";
+import Subscription from "./functional-component/owners-component/Subscription";
 
 import OwnerForgotPassword from "./functional-component/owners-component/OwnerForgotPassword";
 import OwnerResetOtp from "./functional-component/owners-component/OwnerResetOtp";
@@ -84,6 +85,7 @@ function AppContent() {
     "/appointment-details",
     "/services",
     "/products",
+    "/ownersubscription",
   
   ];
 
@@ -128,6 +130,7 @@ function AppContent() {
         <Route path="/ownerlogin" element={<OwnerLogin />} />
         <Route path="/ownerdashboard" element={<OwnerDashboard />} />
         <Route path="/appointment-details" element={<OwnerAppointmentDetails />} />
+        <Route path="/ownersubscription" element={<Subscription />} />
 
         {/* OWNER FORGOT PASSWORD */}
         <Route path="/ownerforgotpassword" element={<OwnerForgotPassword />} />

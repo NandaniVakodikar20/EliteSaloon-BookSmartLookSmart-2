@@ -29,12 +29,62 @@ const pincode = customer?.customerPincode
     const fetchProducts = async () => {
       try {
         setLoading(true);
+       
+        const location = localStorage.getItem("customerLocation");
 
-        const res = await axios.get(
-          `http://localhost:5000/customer/get-product-customer/${pincode}`
-        );
+        if (location) {
 
-        setProducts(res.data.data || []);
+            const parsedLocation = JSON.parse(location);
+            const latitude = Number(parsedLocation.latitude);
+            const longitude = Number(parsedLocation.longitude);
+            
+            if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+              console.error("Invalid customer coordinates.");
+              return;
+            }
+
+            console.log("CUSTOMER LOCATION in Products");
+            console.log("Latitude:",latitude);
+            console.log("Longitude:",longitude);
+
+            // setCustomerLocation([
+            //   latitude,
+            //   longitude,
+            // ]);
+
+            const response = await fetch("http://localhost:5000/customer/get-product", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                latitude: latitude,
+                longitude: longitude,
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error(
+                `Server error: ${response.status}`
+              );
+            }
+
+            const data = await response.json();
+            console.log("Nearby Salon Product:", data);
+            setProducts(data.products || []);
+        
+        }else {        
+            console.log("No location found. Searching by pincode:", pincode );
+
+            const response = await axios.get(
+              `http://localhost:5000/customer/get-product-customer/${pincode}`
+            );
+
+            console.log("Products by pincode:", response.data );
+
+            setProducts(response.data.products || []);
+        }      
+
       } catch (err) {
         console.log(err);
         setProducts([]);

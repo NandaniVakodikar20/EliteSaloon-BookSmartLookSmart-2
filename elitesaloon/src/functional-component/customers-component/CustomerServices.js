@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { FaClock, FaRupeeSign, FaMapMarkerAlt } from "react-icons/fa";
 
 import Slider from "react-slick";
@@ -9,7 +10,18 @@ import "slick-carousel/slick/slick-theme.css";
 
 
 const CustomerServices = ({ customer, isPreview }) => {
-  const navigate = useNavigate();
+
+    const navigate = useNavigate();
+    const location = useLocation();
+   const customerData = location.state?.customer;
+
+  const pincode = customer?.customerPincode
+  ? Number(customer.customerPincode)
+  : customerData?.customerPincode
+    ? Number(customerData.customerPincode)
+    : "";
+
+
 
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,93 +54,63 @@ const CustomerServices = ({ customer, isPreview }) => {
       try {
         setLoading(true);
 
-        const latitude = Number(21.16885646764516);
-        const longitude = Number(72.86287307739259);
+        const location = localStorage.getItem("customerLocation");
 
-        // -----------------------------------------------
-        // VALIDATE COORDINATES
-        // -----------------------------------------------
+        if(location){
 
-        if (
-          Number.isNaN(latitude) ||
-          Number.isNaN(longitude)
-        ) {
+            const parsedLocation = JSON.parse(location);
+            const latitude = Number(parsedLocation.latitude);
+            const longitude = Number(parsedLocation.longitude);
 
-          console.error(
-            "Invalid customer coordinates."
+            if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+              console.error("Invalid customer coordinates.");
+              return;
+            }
+
+
+            console.log("CUSTOMER CURRENT LOCATION in Services");
+            console.log("Latitude:", latitude);
+            console.log("Longitude:",longitude);
+
+            // setCustomerLocation([
+            //   latitude,
+            //   longitude,
+            // ]);
+
+            const response = await fetch("http://localhost:5000/customer/get-service", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                latitude: latitude,
+                longitude: longitude,
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error(
+                `Server error: ${response.status}`
+              );
+            }
+
+            const data = await response.json();
+            console.log("Nearby Salon Services:", data);
+            setServices(data.services || []);
+        }else{
+
+          console.log("No location found. Searching by pincode:", pincode );
+          
+          const response = await axios.get(
+            `http://localhost:5000/customer/get-service-customer/${pincode}`,
           );
+          
+           console.log("sERVICES by pincode:", response.data );
 
-          return;
+            setServices(response.data.services || []);
+
         }
-
-
-        // -----------------------------------------------
-        // CURRENT LOCATION CONSOLE
-        // -----------------------------------------------
-
-        console.log(
-          "================================="
-        );
-
-        console.log(
-          "CUSTOMER CURRENT LOCATION"
-        );
-
-        console.log(
-          "Latitude:",
-          latitude
-        );
-
-        console.log(
-          "Longitude:",
-          longitude
-        );
-
-        console.log(
-          "================================="
-        );
-
-
-        // -----------------------------------------------
-        // SAVE CUSTOMER LOCATION
-        // -----------------------------------------------
-
-        // setCustomerLocation([
-        //   latitude,
-        //   longitude,
-        // ]);
-
-        const response = await fetch("http://localhost:5000/customer/get-service", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            latitude: latitude,
-            longitude: longitude,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `Server error: ${response.status}`
-          );
-        }
-
-        const data = await response.json();
-
-        console.log("Nearby Salon Data:", data);
-
-        console.log("Total Salons:", data.totalSalons);
-
-        console.log("Services:", data.services);
-
-        // const res = await axios.get(
-        //   `http://localhost:5000/customer/get-service-customer/${customer.customerPincode}`,
-        // );
-
-
-        setServices(response.data.data || []);
+  
       } catch (err) {
         console.log(err);
         setServices([]);

@@ -151,7 +151,7 @@ exports.loginCustomer = async (req, res) => {
     const { customerUsername, customerPassword } = req.body;
 
     const customer = await CustomerModel.findOne({ customerUsername });
-    console.log("Customer Data print :", customer);
+    // console.log("Customer Data print :", customer);
 
     if (customer != null) {
       const isMatch = await bcrypt.compare(
@@ -180,6 +180,7 @@ exports.loginCustomer = async (req, res) => {
           message: "Customer Login Successful and JWT Token Generated",
           token: token
         });
+        
       } else if (customer.customerStatus === "deactive") {
         res.status(401).json({
           message: "Deactivated By Admin",
@@ -538,7 +539,7 @@ exports.getServiceForCustomerByPin = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalServices: services.length,
-      data: services,
+      services: services,
     });
   } catch (error) {
     console.error(error);
@@ -590,7 +591,7 @@ exports.getProductsForCustomerByPin = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalProducts: products.length,
-      data: products,
+      products: products,
     });
   } catch (error) {
     console.error(error);
@@ -850,7 +851,7 @@ exports.getServiceByNearBySalons = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalServices: services.length,
-      data: services,
+      services : services,
     });
 
     // return res.status(200).json({
@@ -917,7 +918,7 @@ exports.getProductByNearBySalons = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalProducts: products.length,
-      data: products,
+      products : products,
     });
   } catch (error) {
 

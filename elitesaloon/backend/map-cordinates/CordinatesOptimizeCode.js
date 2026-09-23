@@ -4,7 +4,7 @@ const OwnerModel = require('../models/OwnerModel');
 //     try {
 
 //          const { latitude, longitude } = req.body;
-        
+
 //         if (latitude === undefined || longitude === undefined) {
 //             return res.status(400).json({
 //                 success: false,
@@ -14,7 +14,7 @@ const OwnerModel = require('../models/OwnerModel');
 
 //         const customerLatitude = Number(latitude);
 //         const customerLongitude = Number(longitude);
-        
+
 //         if (
 //             Number.isNaN(customerLatitude) ||
 //             Number.isNaN(customerLongitude)
@@ -170,6 +170,7 @@ const findNearbyOwners = async (latitude, longitude, radiusKm = 5) => {
         "_id ownerName ownerShopName ownerShopStreet ownerShopCity ownerShopDistrict ownerShopPincode ownerShopState ownerLatitude ownerLongitude ownerProfileImage"
     );
 
+    console.log("Owner", owners);
     const EARTH_RADIUS_KM = 6371;
 
     const nearbySalons = [];
