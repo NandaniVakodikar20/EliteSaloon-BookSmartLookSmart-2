@@ -37,6 +37,8 @@ app.use("/appointment", require("./routes/appointmentRoutes"));
 
 // app.use("/appointment", require("./routes/appointmentRoutes") );
 
+app.use("/subscription", require("./routes/subscriptionRouter"));
+
 app.use("/payment", require("./routes/paymentRoutes"));
    app.use("/guest",require("./routes/guestRoutes"));
 app.listen(5000, () => {

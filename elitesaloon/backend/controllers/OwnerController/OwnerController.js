@@ -7,6 +7,7 @@ const ProductModel = require("../../models/ProductModel");
 const StaffModel = require("../../models/StaffModel");
 const AppointmentModel = require("../../models/AppointmentModel"); 
 const mongoose = require("mongoose");
+const OwnerSubscriptionModel = require("../../models/OwnerSubscriptionModel");
 
 exports.registerOwner = async (req, res) => {
   const subject = "Mail for Register Owner in Elite Saloon";
@@ -105,49 +106,131 @@ function passwordGenTemps() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+// exports.loginOwner = async (req, res) => {
+//   const { ownerEmail, ownerPassword } = req.body;
+
+//   const owner = await OwnerModel.findOne({ ownerEmail });
+
+//   // console.log(owner);
+
+//   if (
+//     owner != null &&
+//     owner.ownerVerified &&
+//     owner.ownerAccountStatus === "ACTIVE" &&
+//     owner.ownerApprovedStatus === "APPROVE"
+//   ) {
+//     const isMatch = await bcrypt.compare(ownerPassword, owner.ownerPassword);
+
+//     if (isMatch) {
+//       res.status(200).json({
+//         message: "Owner Login Successful",
+//         owner: owner.toObject(),
+//       });
+//     } else {
+//       res.status(401).json({
+//         message: "Password is invalid ... !!!",
+//       });
+//     }
+//   } else {
+//     if (owner == null) {
+//       res.status(401).json({
+//         message: "Email does not exist",
+//       });
+//     } else if (
+//       owner.ownerAccountStatus !== "ACTIVE" &&
+//       owner.ownerApprovedStatus !== "APPROVE"
+//     ) {
+//       res.status(401).json({
+//         message: "You are not APPROVED By admin",
+//       });
+//     } else {
+//       res.status(401).json({
+//         message: "You are temprory Deactivated By ADMIN",
+//       });
+//     }
+//   }
+// };
+
 exports.loginOwner = async (req, res) => {
   const { ownerEmail, ownerPassword } = req.body;
 
   const owner = await OwnerModel.findOne({ ownerEmail });
 
-  // console.log(owner);
-
-  if (
-    owner != null &&
-    owner.ownerVerified &&
-    owner.ownerAccountStatus === "ACTIVE" &&
-    owner.ownerApprovedStatus === "APPROVE"
-  ) {
-    const isMatch = await bcrypt.compare(ownerPassword, owner.ownerPassword);
-
-    if (isMatch) {
-      res.status(200).json({
-        message: "Owner Login Successful",
-        owner: owner.toObject(),
-      });
-    } else {
-      res.status(401).json({
-        message: "Password is invalid ... !!!",
-      });
-    }
-  } else {
-    if (owner == null) {
-      res.status(401).json({
-        message: "Email does not exist",
-      });
-    } else if (
-      owner.ownerAccountStatus !== "ACTIVE" &&
-      owner.ownerApprovedStatus !== "APPROVE"
-    ) {
-      res.status(401).json({
-        message: "You are not APPROVED By admin",
-      });
-    } else {
-      res.status(401).json({
-        message: "You are temprory Deactivated By ADMIN",
-      });
-    }
+  // Owner does not exist
+  if (owner == null) {
+    return res.status(401).json({
+      message: "Email does not exist",
+    });
   }
+
+  // Admin approval check
+  if (
+    !owner.ownerVerified ||
+    owner.ownerApprovedStatus !== "APPROVE"
+  ) {
+    return res.status(401).json({
+      message: "You are not APPROVED By admin",
+    });
+  }
+
+  // Owner account status check
+  if (owner.ownerAccountStatus !== "ACTIVE") {
+    return res.status(401).json({
+      message: "Your account is temporarily deactivated by ADMIN",
+    });
+  }
+
+  // Password check
+  const isMatch = await bcrypt.compare(
+    ownerPassword,
+    owner.ownerPassword
+  );
+
+  if (!isMatch) {
+    return res.status(401).json({
+      message: "Password is invalid ... !!!",
+    });
+  }
+
+  // Find owner's latest active subscription
+  const subscription = await OwnerSubscriptionModel.findOne({
+    ownerId: owner._id,
+    status: "ACTIVE",
+  }).sort({ endDate: -1 });
+
+  // No active subscription
+  if (!subscription) {
+    return res.status(403).json({
+      message: "Please purchase a subscription to continue.",
+    });
+  }
+
+  // Check subscription expiry
+  const currentDate = new Date();
+
+  if (subscription.endDate <= currentDate) {
+
+    // Mark subscription as expired
+    subscription.status = "EXPIRED";
+    await subscription.save();
+
+    return res.status(403).json({
+      message: "Your subscription has expired. Please renew your subscription.",
+    });
+  }
+
+  // Everything is valid
+  return res.status(200).json({
+    message: "Owner Login Successful",
+    owner: owner.toObject(),
+    subscription: {
+      subscriptionId: subscription._id,
+      planId: subscription.planId,
+      startDate: subscription.startDate,
+      endDate: subscription.endDate,
+      status: subscription.status,
+    },
+  });
 };
 
 exports.verifyOTP = async (req, res) => {
