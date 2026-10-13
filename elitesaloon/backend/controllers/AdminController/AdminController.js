@@ -5,49 +5,233 @@ const AppointmentModel = require("../../models/AppointmentModel");
 const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
 const bcrypt = require("bcrypt");
 
+// exports.approveOwner = async (req, res) => {
+//   const { ownerId } = req.params;
+//   const { ownerApprovedStatus } = req.body;
+
+//   const owner = await OwnerModel.findOne({ _id: ownerId });
+
+//   if (owner !== null) {
+//     let wishesh = "";
+//     let status = "";
+//     const subject = "Owner Request for Elite Saloon Account ... !!!";
+
+//     if (ownerApprovedStatus === "APPROVE") {
+//       wishesh = "Congratulations ... ";
+//       status =
+//         ownerApprovedStatus +
+//         "\n\n For login first time, Please reset password ...!!!";
+
+//       owner.ownerApprovedStatus = ownerApprovedStatus;
+//       owner.ownerAccountStatus = "ACTIVE";
+//       owner.ownerUpdatedAt = Date.now();
+//       await owner.save();
+//     } else {
+//       wishesh = "Hard luck ";
+//       status = ownerApprovedStatus;
+
+//       owner.ownerApprovedStatus = ownerApprovedStatus;
+//       owner.ownerAccountStatus = "DEACTIVE";
+//       owner.ownerUpdatedAt = Date.now();
+//       await owner.save();
+//     }
+
+//     let message =
+//       `${wishesh}...!!!\n\nYour request has been reviewed by ADMIN.\n\n` +
+//       `You are ${status}` +
+//       `Thank You\nEliteSaloon`;
+
+//     res.status(200).json({
+//       message: "DONE",
+//     });
+
+//     emailSendOptimizeCode(owner.ownerEmail, subject, message);
+//   }
+// };
+
+
+// exports.approveOwner = async (req, res) => {
+//   try {
+//     const { ownerId } = req.params;
+//     const { ownerApprovedStatus } = req.body;
+
+//     const owner = await OwnerModel.findById(ownerId);
+
+//     if (!owner) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Owner not found",
+//       });
+//     }
+
+//     if (!["APPROVE", "REJECT"].includes(ownerApprovedStatus)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid owner approval status",
+//       });
+//     }
+
+//     owner.ownerApprovedStatus = ownerApprovedStatus;
+//     owner.ownerUpdatedAt = new Date();
+
+//     if (ownerApprovedStatus === "APPROVE") {
+//       owner.ownerAccountStatus = "ACTIVE";
+//     } else {
+//       owner.ownerAccountStatus = "DEACTIVE";
+//     }
+
+//     await owner.save();
+
+//     // Send subscription email only when the owner is approved
+//     if (ownerApprovedStatus === "APPROVE") {
+//       const subject = "EliteSaloon - Complete Your Subscription";
+
+//       const subscriptionLink =
+//         "http://localhost:3000/ownersubscription";
+
+//       const message = `
+//         Hello ${owner.ownerName},
+
+//         Congratulations! Your EliteSaloon owner account has been
+//         approved by the administrator.
+
+//         To activate your salon access, please select a subscription
+//         plan and complete the payment using the link below:
+
+//         ${subscriptionLink}
+
+//         Subscription Plans:
+//         - 1 Month: Rs. 300
+//         - 6 Months: Rs. 1000
+//         - 12 Months: Rs. 2000
+
+//         Your login access will be enabled after your payment is
+//         successfully verified.
+
+//         Regards,
+//         EliteSaloon Team
+//       `;
+
+//       await emailSendOptimizeCode(
+//         owner.ownerEmail,
+//         subject,
+//         message
+//       );
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message:
+//         ownerApprovedStatus === "APPROVE"
+//           ? "Owner approved and subscription email sent"
+//           : "Owner rejected successfully",
+//     });
+//   } catch (error) {
+//     console.error("Error in approveOwner:", error);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: "Something went wrong while updating owner approval",
+//     });
+//   }
+// };
+
+
+const jwt = require("jsonwebtoken");
+
 exports.approveOwner = async (req, res) => {
-  const { ownerId } = req.params;
-  const { ownerApprovedStatus } = req.body;
+  try {
+    const { ownerId } = req.params;
+    const { ownerApprovedStatus } = req.body;
 
-  const owner = await OwnerModel.findOne({ _id: ownerId });
+    const owner = await OwnerModel.findById(ownerId);
 
-  if (owner !== null) {
-    let wishesh = "";
-    let status = "";
-    const subject = "Owner Request for Elite Saloon Account ... !!!";
-
-    if (ownerApprovedStatus === "APPROVE") {
-      wishesh = "Congratulations ... ";
-      status =
-        ownerApprovedStatus +
-        "\n\n For login first time, Please reset password ...!!!";
-
-      owner.ownerApprovedStatus = ownerApprovedStatus;
-      owner.ownerAccountStatus = "ACTIVE";
-      owner.ownerUpdatedAt = Date.now();
-      await owner.save();
-    } else {
-      wishesh = "Hard luck ";
-      status = ownerApprovedStatus;
-
-      owner.ownerApprovedStatus = ownerApprovedStatus;
-      owner.ownerAccountStatus = "DEACTIVE";
-      owner.ownerUpdatedAt = Date.now();
-      await owner.save();
+    if (!owner) {
+      return res.status(404).json({
+        success: false,
+        message: "Owner not found",
+      });
     }
 
-    let message =
-      `${wishesh}...!!!\n\nYour request has been reviewed by ADMIN.\n\n` +
-      `You are ${status}` +
-      `Thank You\nEliteSaloon`;
+    if (!["APPROVE", "REJECT"].includes(ownerApprovedStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid owner approval status",
+      });
+    }
 
-    res.status(200).json({
-      message: "DONE",
+    owner.ownerApprovedStatus = ownerApprovedStatus;
+    owner.ownerUpdatedAt = new Date();
+
+    if (ownerApprovedStatus === "APPROVE") {
+      owner.ownerAccountStatus = "ACTIVE";
+    } else {
+      owner.ownerAccountStatus = "DEACTIVE";
+    }
+
+    await owner.save();
+
+    if (ownerApprovedStatus === "APPROVE") {
+      // Generate a token only for the subscription process.
+        const subscriptionToken = jwt.sign(
+        {
+          ownerId: owner._id.toString(),
+          purpose: "SUBSCRIPTION",
+        },
+        process.env.SUBSCRIPTION_TOKEN_SECRET
+      );
+
+      const subscriptionLink =
+        `http://localhost:3000/ownersubscription?token=${subscriptionToken}`;
+
+      const subject =
+        "EliteSaloon - Complete Your Subscription";
+
+      const message = `
+Hello ${owner.ownerName},
+
+Congratulations! Your EliteSaloon owner account has been approved.
+
+Please choose a subscription plan and complete payment using this link:
+
+${subscriptionLink}
+
+Available plans:
+- 1 Month: Rs. 300
+- 6 Months: Rs. 1000
+- 12 Months: Rs. 2000
+
+Your login access will be enabled after your payment is successfully verified.
+
+Regards,
+EliteSaloon Team
+      `;
+
+      await emailSendOptimizeCode(
+        owner.ownerEmail,
+        subject,
+        message
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        ownerApprovedStatus === "APPROVE"
+          ? "Owner approved and subscription email sent"
+          : "Owner rejected successfully",
     });
+  } catch (error) {
+    console.error("Error in approveOwner:", error);
 
-    emailSendOptimizeCode(owner.ownerEmail, subject, message);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while updating owner approval",
+    });
   }
 };
+
+
 exports.ownerRequest = async (req, res) => {
   try {
     const owners = await OwnerModel.find({
