@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 import { useNavigate,useLocation } from "react-router-dom";
-import { FaClock, FaRupeeSign, FaMapMarkerAlt } from "react-icons/fa";
+import { FaClock, FaRupeeSign, FaMapMarkerAlt, FaEnvelope } from "react-icons/fa";
 
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import "./CustomerDashboard.css";
 
 
 const CustomerServices = ({ customer, isPreview }) => {
@@ -243,28 +244,36 @@ const CustomerServices = ({ customer, isPreview }) => {
               </div>
 
               <div className="service-body">
-                <span className="shop-name">
-                  {service.ownerId?.ownerShopName}
-                </span>
+                <div className="service-salon-info">
+                  <span className="shop-name">
+                    {service.ownerId?.ownerShopName || "Elite Salon"}
+                  </span>
 
-                <span className="owner-email">
-                  {service.ownerId?.ownerEmail}
-                </span>
+                  <div className="salon-meta-details">
+                    {service.ownerId?.ownerEmail && (
+                      <span className="owner-email" title={service.ownerId.ownerEmail}>
+                        <FaEnvelope /> {service.ownerId.ownerEmail}
+                      </span>
+                    )}
 
-                <span className="service-address">
-                  <FaMapMarkerAlt /> {service.ownerId?.ownerShopStreet},{" "}
-                  {service.ownerId?.ownerShopDistrict}
-                </span>
+                    <span
+                      className="service-address"
+                      title={`${service.ownerId?.ownerShopStreet || ""}, ${service.ownerId?.ownerShopDistrict || ""}`}
+                    >
+                      <FaMapMarkerAlt /> {service.ownerId?.ownerShopStreet ? `${service.ownerId.ownerShopStreet}, ` : ""}{service.ownerId?.ownerShopDistrict || "Location N/A"}
+                    </span>
+                  </div>
+                </div>
 
                 <h3>{service.serviceName}</h3>
 
                 <p className="desc">{service.serviceDescription}</p>
 
                 <div className="service-meta">
-                  <span>
+                  <span className="service-duration-badge">
                     <FaClock /> {service.serviceDuration} min
                   </span>
-                  <span>
+                  <span className="service-price-tag">
                     <FaRupeeSign /> {service.servicePrice}
                   </span>
                 </div>

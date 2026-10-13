@@ -180,7 +180,7 @@ exports.loginCustomer = async (req, res) => {
           message: "Customer Login Successful and JWT Token Generated",
           token: token
         });
-        
+
       } else if (customer.customerStatus === "deactive") {
         res.status(401).json({
           message: "Deactivated By Admin",
@@ -851,7 +851,7 @@ exports.getServiceByNearBySalons = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalServices: services.length,
-      services : services,
+      services: services,
     });
 
     // return res.status(200).json({
@@ -918,7 +918,7 @@ exports.getProductByNearBySalons = async (req, res) => {
       success: true,
       totalOwners: owners.length,
       totalProducts: products.length,
-      products : products,
+      products: products,
     });
   } catch (error) {
 
