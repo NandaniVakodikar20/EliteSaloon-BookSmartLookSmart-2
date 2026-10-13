@@ -1,6 +1,6 @@
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
-const { emailSendOptimizeCode } = require("../../utils/emailSendOptimizeCode");
+const emailSendOptimizeCode = require("../../utils/emailSendOptimizeCode");
 const jwt = require("jsonwebtoken");
 
 const OwnerModel = require("../../models/OwnerModel");
@@ -41,7 +41,7 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-          // verify payment
+// verify payment
 
 exports.verifyPayment = async (req, res) => {
   try {
@@ -645,10 +645,10 @@ exports.verifySubscriptionPayment = async (req, res) => {
     await subscription.save();
 
 
-// Send subscription success email to owner
-const subject = "🎉 Welcome to EliteSaloon - Subscription Successful!";
+    // Send subscription success email to owner
+    const subject = "🎉 Welcome to EliteSaloon - Subscription Successful!";
 
-const message = `
+    const message = `
 Dear ${owner.ownerName},
 
 Congratulations! 🎉
@@ -672,19 +672,19 @@ Team EliteSaloon
 Book Smart, Look Smart
 `;
 
-// Send email using your existing email function
-const emailSent = await emailSendOptimizeCode(
-  owner.ownerEmail,
-  subject,
-  message
-);
+    // Send email using your existing email function
+    const emailSent = await emailSendOptimizeCode(
+      owner.ownerEmail,
+      subject,
+      message
+    );
 
-if (!emailSent) {
-  console.error(
-    "Subscription activated, but confirmation email could not be sent:",
-    owner.ownerEmail
-  );
-}
+    if (!emailSent) {
+      console.error(
+        "Subscription activated, but confirmation email could not be sent:",
+        owner.ownerEmail
+      );
+    }
 
     return res.status(200).json({
       success: true,

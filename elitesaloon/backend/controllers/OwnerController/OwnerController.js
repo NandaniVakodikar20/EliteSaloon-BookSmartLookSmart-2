@@ -5,7 +5,7 @@ const generateOTP = require("../../utils/generateOTP");
 const ServiceModel = require("../../models/ServiceModel");
 const ProductModel = require("../../models/ProductModel");
 const StaffModel = require("../../models/StaffModel");
-const AppointmentModel = require("../../models/AppointmentModel"); 
+const AppointmentModel = require("../../models/AppointmentModel");
 const mongoose = require("mongoose");
 const OwnerSubscriptionModel = require("../../models/OwnerSubscriptionModel");
 
@@ -322,9 +322,9 @@ exports.updateOwnerProfile = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   const { ownerEmail } = req.body;
- console.log("Owner Email Received:", ownerEmail);
+  console.log("Owner Email Received:", ownerEmail);
   const owner = await OwnerModel.findOne({ ownerEmail });
- console.log("Owner Found:", owner);
+  console.log("Owner Found:", owner);
   if (owner != null) {
     let subject = "Mail for Reset Password in Elite Saloon";
     let message =
@@ -1049,17 +1049,17 @@ exports.totalOwnerEarning = async (req, res) => {
     const ownerObjectId = new mongoose.Types.ObjectId(ownerId);
 
     const earningData = await AppointmentModel.aggregate([
-      { 
-        $match: { 
-          ownerId: ownerObjectId, 
-          appointmentStatus: "COMPLETED" 
-        } 
+      {
+        $match: {
+          ownerId: ownerObjectId,
+          appointmentStatus: "COMPLETED"
+        }
       },
-      { 
-        $group: { 
-          _id: null, 
-          total: { $sum: "$totalPrice" } 
-        } 
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$totalPrice" }
+        }
       }
     ]);
 
