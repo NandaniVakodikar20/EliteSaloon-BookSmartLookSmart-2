@@ -8,6 +8,9 @@ const SubscriptionPlanModel = require("../../models/SubscriptionPlanModel");
 const OwnerSubscriptionModel = require("../../models/OwnerSubscriptionModel");
 
 const AppointmentModel = require("../../models/AppointmentModel");
+const OrderModel = require("../../models/OrderModel");
+const ProductModel = require("../../models/ProductModel");
+const mongoose = require("mongoose");
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY,
@@ -705,3 +708,258 @@ Book Smart, Look Smart
     });
   }
 };
+
+// ==========================================
+// CREATE PRODUCT PURCHASE PAYMENT ORDER
+// ==========================================
+exports.createProductOrder = async (req, res) => {
+  try {
+    const {
+      items,
+      customerId,
+      customerName,
+      customerEmail,
+      customerMobile,
+      shippingAddress,
+    } = req.body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No products provided for checkout",
+      });
+    }
+
+    if (!customerName || !customerEmail || !shippingAddress) {
+      return res.status(400).json({
+        success: false,
+        message: "Customer details and shipping address are required",
+      });
+    }
+
+    let validCustomerId = null;
+    if (customerId && mongoose.Types.ObjectId.isValid(customerId)) {
+      validCustomerId = customerId;
+    }
+
+    if (
+      !shippingAddress.street ||
+      !shippingAddress.city ||
+      !shippingAddress.pincode ||
+      !shippingAddress.state
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Complete shipping address is required",
+      });
+    }
+
+    // Authoritative pricing: fetch real products directly from MongoDB
+    const productIds = items.map((item) => item.productId || item._id);
+    const dbProducts = await ProductModel.find({ _id: { $in: productIds } });
+
+    const productMap = new Map();
+    dbProducts.forEach((p) => productMap.set(p._id.toString(), p));
+
+    let subtotal = 0;
+    const verifiedItems = [];
+
+    for (const item of items) {
+      const pId = (item.productId || item._id || "").toString();
+      const dbProd = productMap.get(pId);
+
+      if (!dbProd) {
+        return res.status(404).json({
+          success: false,
+          message: `Product not found or unavailable: ${item.productName || pId}`,
+        });
+      }
+
+      const qty = Math.max(1, parseInt(item.quantity, 10) || 1);
+      const unitPrice = Number(dbProd.productPrice) || 0;
+      const lineTotal = unitPrice * qty;
+
+      subtotal += lineTotal;
+
+      verifiedItems.push({
+        productId: dbProd._id,
+        productName: dbProd.productName,
+        productPrice: unitPrice,
+        productImage:
+          dbProd.productImages && dbProd.productImages.length > 0
+            ? dbProd.productImages[0]
+            : "",
+        productType: dbProd.productType || "Cosmetics",
+        quantity: qty,
+        lineTotal: lineTotal,
+        ownerId: dbProd.ownerId,
+      });
+    }
+
+    const shippingCharges = subtotal >= 500 ? 0 : 50;
+    const taxAmount = Math.round(subtotal * 0.18 * 100) / 100;
+    const finalAmount = Math.round(subtotal + shippingCharges + taxAmount);
+
+    // Create Razorpay order
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(finalAmount * 100),
+      currency: "INR",
+      receipt: `ord_${Date.now()}`.slice(0, 40),
+      notes: {
+        customerId: (validCustomerId || "guest").toString(),
+        orderType: "PRODUCT_PURCHASE",
+      },
+    });
+
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const orderNumber = `ES-ORD-${Date.now().toString().slice(-6)}-${randomSuffix}`;
+    const invoiceNumber = `ES-INV-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}-${randomSuffix}`;
+
+    const newOrder = await OrderModel.create({
+      orderNumber,
+      customerId: validCustomerId,
+      customerName,
+      customerEmail,
+      customerMobile: customerMobile || "",
+      shippingAddress: {
+        street: shippingAddress.street,
+        city: shippingAddress.city,
+        district: shippingAddress.district || "",
+        state: shippingAddress.state,
+        pincode: shippingAddress.pincode,
+      },
+      items: verifiedItems,
+      subtotal,
+      shippingCharges,
+      taxAmount,
+      finalAmount,
+      currency: "INR",
+      paymentMethod: "RAZORPAY",
+      paymentStatus: "PENDING",
+      orderStatus: "CONFIRMED",
+      razorpayOrderId: razorpayOrder.id,
+      invoiceNumber,
+    });
+
+    return res.status(201).json({
+      success: true,
+      orderId: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      dbOrderId: newOrder._id,
+      orderNumber: newOrder.orderNumber,
+      finalAmount,
+    });
+  } catch (error) {
+    console.error("Create Product Order Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to create product payment order",
+      error: error.message,
+    });
+  }
+};
+
+// ==========================================
+// VERIFY PRODUCT PURCHASE PAYMENT
+// ==========================================
+exports.verifyProductPayment = async (req, res) => {
+  try {
+    const {
+      dbOrderId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    } = req.body;
+
+    if (
+      !dbOrderId ||
+      !razorpay_order_id ||
+      !razorpay_payment_id ||
+      !razorpay_signature
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment verification details are incomplete",
+      });
+    }
+
+    const order = await OrderModel.findById(dbOrderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    // Idempotency: prevent double verification
+    if (order.paymentStatus === "PAID") {
+      return res.status(200).json({
+        success: true,
+        message: "Order payment was already verified",
+        order,
+      });
+    }
+
+    // 1. Verify Razorpay HMAC SHA256 Signature
+    const signatureBody = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_SECRET)
+      .update(signatureBody)
+      .digest("hex");
+
+    const expectedBuffer = Buffer.from(expectedSignature);
+    const receivedBuffer = Buffer.from(razorpay_signature);
+
+    if (
+      expectedBuffer.length !== receivedBuffer.length ||
+      !crypto.timingSafeEqual(expectedBuffer, receivedBuffer)
+    ) {
+      order.paymentStatus = "FAILED";
+      await order.save();
+
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Razorpay payment signature",
+      });
+    }
+
+    // 2. Authoritative check with Razorpay API
+    const payment = await razorpay.payments.fetch(razorpay_payment_id);
+
+    if (
+      payment.order_id !== razorpay_order_id ||
+      payment.status !== "captured" ||
+      payment.amount !== Math.round(order.finalAmount * 100) ||
+      payment.currency !== "INR"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment is not captured or amount does not match",
+      });
+    }
+
+    // 3. Mark order as PAID and CONFIRMED
+    order.paymentStatus = "PAID";
+    order.orderStatus = "CONFIRMED";
+    order.razorpayPaymentId = razorpay_payment_id;
+    order.razorpaySignature = razorpay_signature;
+    order.invoiceDate = new Date();
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Product purchase payment verified successfully",
+      order,
+    });
+  } catch (error) {
+    console.error("Verify Product Payment Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to verify product payment",
+      error: error.message,
+    });
+  }
+};
+

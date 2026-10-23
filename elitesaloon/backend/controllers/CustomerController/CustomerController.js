@@ -1,4 +1,5 @@
 const CustomerModel = require("../../models/CustomerModel");
+const OrderModel = require("../../models/OrderModel");
 const OwnerModel = require("../../models/OwnerModel");
 const ProductModel = require("../../models/ProductModel");
 const ServiceModel = require("../../models/ServiceModel");
@@ -931,3 +932,55 @@ exports.getProductByNearBySalons = async (req, res) => {
   }
 
 };
+
+exports.getCustomerOrders = async (req, res) => {
+  try {
+    const customerId = req.data.customerId;
+    const orders = await OrderModel.find({ customerId }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      totalOrders: orders.length,
+      orders,
+    });
+  } catch (error) {
+    console.error("Get Customer Orders Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error retrieving customer orders",
+      error: error.message,
+    });
+  }
+};
+
+exports.getCustomerOrderById = async (req, res) => {
+  try {
+    const customerId = req.data.customerId;
+    const { orderId } = req.params;
+
+    const order = await OrderModel.findOne({
+      _id: orderId,
+      customerId,
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    console.error("Get Customer Order By Id Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error retrieving order",
+      error: error.message,
+    });
+  }
+};
+

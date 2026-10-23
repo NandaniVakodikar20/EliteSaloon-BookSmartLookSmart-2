@@ -1,16 +1,18 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
 
 import {
   FaRupeeSign,
   FaHeart,
   FaShoppingCart,
   FaEnvelope,
-  FaMapMarkerAlt
+  FaMapMarkerAlt,
 } from "react-icons/fa";
 import "./CustomerDashboard.css";
+import "../../css/CustomerCheckout.css";
+import CartDrawer from "./CartDrawer";
 
 const CustomerProducts = ({ customer, isPreview }) => {
   const navigate = useNavigate();
@@ -27,6 +29,17 @@ const CustomerProducts = ({ customer, isPreview }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Cart state
+  const [cart, setCart] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("cart")) || [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
   // Wishlist state
   const [wishlist, setWishlist] = useState(() => {
     try {
@@ -35,6 +48,20 @@ const CustomerProducts = ({ customer, isPreview }) => {
       return [];
     }
   });
+
+  // Sync cart with localStorage when component mounts or updates
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        setCart(JSON.parse(localStorage.getItem("cart")) || []);
+      } catch {
+        setCart([]);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   // =========================
   // FETCH PRODUCTS
@@ -58,17 +85,10 @@ const CustomerProducts = ({ customer, isPreview }) => {
           const latitude = Number(parsedLocation.latitude);
           const longitude = Number(parsedLocation.longitude);
 
-          if (
-            Number.isNaN(latitude) ||
-            Number.isNaN(longitude)
-          ) {
+          if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
             console.error("Invalid customer coordinates.");
             return;
           }
-
-          console.log("CUSTOMER LOCATION in Products");
-          console.log("Latitude:", latitude);
-          console.log("Longitude:", longitude);
 
           const response = await fetch(
             "http://localhost:5000/customer/get-product",
@@ -85,35 +105,19 @@ const CustomerProducts = ({ customer, isPreview }) => {
           );
 
           if (!response.ok) {
-            throw new Error(
-              `Server error: ${response.status}`
-            );
+            throw new Error(`Server error: ${response.status}`);
           }
 
           const data = await response.json();
-
-          console.log("Nearby Salon Product:", data);
-
           setProducts(data.products || []);
         } else {
-          console.log(
-            "No location found. Searching by pincode:",
-            pincode
-          );
-
           const response = await axios.get(
             `http://localhost:5000/customer/get-product-customer/${pincode}`
           );
-
-          console.log(
-            "Products by pincode:",
-            response.data
-          );
-
           setProducts(response.data.products || []);
         }
       } catch (err) {
-        console.log(err);
+        console.error("Fetch products error:", err);
         setProducts([]);
       } finally {
         setLoading(false);
@@ -126,34 +130,23 @@ const CustomerProducts = ({ customer, isPreview }) => {
   // =========================
   // PREVIEW PRODUCTS
   // =========================
-  const displayProducts = isPreview
-    ? products.slice(0, 4)
-    : products;
+  const displayProducts = isPreview ? products.slice(0, 4) : products;
 
   // =========================
   // ADD TO WISHLIST
   // =========================
   const handleWishlist = (product) => {
     let updatedWishlist;
-
-    const alreadyExists = wishlist.some(
-      (item) => item._id === product._id
-    );
+    const alreadyExists = wishlist.some((item) => item._id === product._id);
 
     if (alreadyExists) {
-      updatedWishlist = wishlist.filter(
-        (item) => item._id !== product._id
-      );
+      updatedWishlist = wishlist.filter((item) => item._id !== product._id);
     } else {
       updatedWishlist = [...wishlist, product];
     }
 
     setWishlist(updatedWishlist);
-
-    localStorage.setItem(
-      "productWishlist",
-      JSON.stringify(updatedWishlist)
-    );
+    localStorage.setItem("productWishlist", JSON.stringify(updatedWishlist));
   };
 
   // =========================
@@ -161,39 +154,46 @@ const CustomerProducts = ({ customer, isPreview }) => {
   // =========================
   const handleAddToCart = (product) => {
     try {
-      const existingCart =
-        JSON.parse(localStorage.getItem("cart")) || [];
-
-      const existingProductIndex = existingCart.findIndex(
-        (item) => item._id === product._id
+      const existingProductIndex = cart.findIndex(
+        (item) => (item.productId || item._id) === product._id
       );
 
       let updatedCart;
 
       if (existingProductIndex !== -1) {
-        updatedCart = [...existingCart];
-
+        updatedCart = [...cart];
         updatedCart[existingProductIndex] = {
           ...updatedCart[existingProductIndex],
-          quantity:
-            (updatedCart[existingProductIndex].quantity || 1) + 1,
+          quantity: (updatedCart[existingProductIndex].quantity || 1) + 1,
         };
       } else {
         updatedCart = [
-          ...existingCart,
+          ...cart,
           {
             ...product,
+            productId: product._id,
             quantity: 1,
           },
         ];
       }
 
-      localStorage.setItem(
-        "cart",
-        JSON.stringify(updatedCart)
-      );
+      setCart(updatedCart);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
 
-      alert("Product added to cart!");
+      Swal.fire({
+        icon: "success",
+        title: "Added to Cart!",
+        text: `"${product.productName}" added to your cart.`,
+        showCancelButton: true,
+        confirmButtonColor: "#800020",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "View Cart",
+        cancelButtonText: "Continue Shopping",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setIsCartOpen(true);
+        }
+      });
     } catch (error) {
       console.error("Add to cart error:", error);
     }
@@ -205,7 +205,7 @@ const CustomerProducts = ({ customer, isPreview }) => {
   const handleBuyNow = (product) => {
     navigate("/checkout", {
       state: {
-        product: product,
+        product: { ...product, productId: product._id },
         quantity: 1,
         customer: customer || customerData,
         buyNow: true,
@@ -213,57 +213,84 @@ const CustomerProducts = ({ customer, isPreview }) => {
     });
   };
 
+  const totalCartCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
   if (loading) {
-    return (
-      <p className="no-data">
-        Loading products...
-      </p>
-    );
+    return <p className="no-data">Loading products...</p>;
   }
 
   return (
     <div className="dashboard-content">
-
       {!isPreview && (
-        <div className="content-header">
+        <div
+          className="content-header"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "12px",
+          }}
+        >
           <h2>Our Products</h2>
+
+          <button
+            type="button"
+            className="cart-header-trigger-btn"
+            onClick={() => setIsCartOpen(true)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "9px 18px",
+              background: "#ffffff",
+              border: "1.5px solid var(--burgundy)",
+              color: "var(--burgundy)",
+              borderRadius: "20px",
+              fontWeight: "700",
+              fontSize: "0.9rem",
+              cursor: "pointer",
+              boxShadow: "0 2px 8px rgba(128,0,32,0.1)",
+              transition: "all 0.2s",
+            }}
+          >
+            <FaShoppingCart />
+            <span>Cart</span>
+            <span
+              style={{
+                background: "var(--burgundy)",
+                color: "#ffffff",
+                borderRadius: "50%",
+                width: "22px",
+                height: "22px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.75rem",
+              }}
+            >
+              {totalCartCount}
+            </span>
+          </button>
         </div>
       )}
 
       {/* NO DATA */}
       {displayProducts.length === 0 ? (
-        <p className="no-data">
-          No products available in your area
-        </p>
+        <p className="no-data">No products available in your area</p>
       ) : (
         <div className="customer-product-grid">
-
           {displayProducts.map((product) => {
-
-            const isWishlisted = wishlist.some(
-              (item) => item._id === product._id
-            );
+            const isWishlisted = wishlist.some((item) => item._id === product._id);
 
             return (
-              <div
-                key={product._id}
-                className="customer-product-card"
-              >
-
-                {/* =========================
-                    IMAGE
-                ========================== */}
+              <div key={product._id} className="customer-product-card">
+                {/* IMAGE */}
                 <div className="product-image customer-product-image">
-
-                  {/* HEART */}
                   <button
                     type="button"
-                    className={`product-wishlist-btn ${
-                      isWishlisted ? "active" : ""
-                    }`}
-                    onClick={() =>
-                      handleWishlist(product)
-                    }
+                    className={`product-wishlist-btn ${isWishlisted ? "active" : ""}`}
+                    onClick={() => handleWishlist(product)}
                     aria-label="Add to wishlist"
                   >
                     <FaHeart />
@@ -277,16 +304,11 @@ const CustomerProducts = ({ customer, isPreview }) => {
                     }
                     alt={product.productName}
                   />
-
                 </div>
 
-                {/* =========================
-                    BODY
-                ========================== */}
+                {/* BODY */}
                 <div className="product-body">
-
                   <div className="product-content">
-
                     <div className="product-salon-info">
                       <span className="shop-name">
                         {product.ownerId?.ownerShopName || "Elite Salon"}
@@ -301,28 +323,26 @@ const CustomerProducts = ({ customer, isPreview }) => {
 
                         <span
                           className="service-address"
-                          title={`${product.ownerId?.ownerShopCity || ""}, ${product.ownerId?.ownerShopPincode || ""}`}
+                          title={`${product.ownerId?.ownerShopCity || ""}, ${
+                            product.ownerId?.ownerShopPincode || ""
+                          }`}
                         >
-                          <FaMapMarkerAlt /> {product.ownerId?.ownerShopCity || ""}{product.ownerId?.ownerShopCity && product.ownerId?.ownerShopPincode ? ", " : ""}{product.ownerId?.ownerShopPincode || "Location N/A"}
+                          <FaMapMarkerAlt /> {product.ownerId?.ownerShopCity || ""}
+                          {product.ownerId?.ownerShopCity && product.ownerId?.ownerShopPincode
+                            ? ", "
+                            : ""}
+                          {product.ownerId?.ownerShopPincode || "Location N/A"}
                         </span>
                       </div>
                     </div>
 
-                    <h3>
-                      {product.productName}
-                    </h3>
+                    <h3>{product.productName}</h3>
 
-                    <p className="desc">
-                      {product.productDescription}
-                    </p>
-
+                    <p className="desc">{product.productDescription}</p>
                   </div>
 
-                  {/* =========================
-                      PRICE + CART
-                  ========================== */}
+                  {/* PRICE + CART */}
                   <div className="product-footer">
-
                     <div className="product-meta">
                       <FaRupeeSign />
                       {product.productPrice}
@@ -331,46 +351,31 @@ const CustomerProducts = ({ customer, isPreview }) => {
                     <button
                       type="button"
                       className="add-cart-btn"
-                      onClick={() =>
-                        handleAddToCart(product)
-                      }
+                      onClick={() => handleAddToCart(product)}
                     >
                       <FaShoppingCart />
                       Add to Cart
                     </button>
-
                   </div>
 
-                  {/* =========================
-                      BUY NOW
-                  ========================== */}
+                  {/* BUY NOW */}
                   <button
                     type="button"
                     className="buy-now-btn"
-                    onClick={() =>
-                      handleBuyNow(product)
-                    }
+                    onClick={() => handleBuyNow(product)}
                   >
                     Buy Now
                   </button>
-
                 </div>
-
               </div>
             );
           })}
-
         </div>
       )}
 
       {/* SEE MORE */}
       {isPreview && (
-        <div
-          style={{
-            textAlign: "right",
-            marginTop: "10px",
-          }}
-        >
+        <div style={{ textAlign: "right", marginTop: "10px" }}>
           <button
             className="view-all-btn"
             onClick={() =>
@@ -384,6 +389,13 @@ const CustomerProducts = ({ customer, isPreview }) => {
         </div>
       )}
 
+      {/* SLIDE-OUT CART DRAWER */}
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cart={cart}
+        setCart={setCart}
+      />
     </div>
   );
 };
