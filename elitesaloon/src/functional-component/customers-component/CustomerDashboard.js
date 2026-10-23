@@ -5,6 +5,7 @@ import CustomerProfile from "./CustomerProfile";
 import CustomerAppointments from "./CustomerAppointments";
 import CustomerServices from "./CustomerServices";
 import CustomerProducts from "./CustomerProducts";
+import CustomerProductOrders from "./CustomerProductOrders";
 import CustomerNearbySalons from "./CustomerNearbySalons";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -15,6 +16,7 @@ import {
   FaSignOutAlt,
   FaCog,
   FaMapMarkerAlt,
+  FaReceipt,
 } from "react-icons/fa";
 
 const CustomerDashboard = () => {
@@ -227,6 +229,13 @@ const CustomerDashboard = () => {
           </button>
 
           <button
+            className={`nav-item ${activeSection === "orders" ? "active" : ""}`}
+            onClick={() => setActiveSection("orders")}
+          >
+            <FaReceipt /> My Orders
+          </button>
+
+          <button
             className={`nav-item ${activeSection === "nearbysalons" ? "active" : ""}`}
             onClick={() => setActiveSection("nearbysalons")}
           >
@@ -272,6 +281,8 @@ const CustomerDashboard = () => {
         return <CustomerServices customer={customer} />;
       case "products":
         return <CustomerProducts customer={customer} />;
+      case "orders":
+        return <CustomerProductOrders />;
       case "nearbysalons":
         return <CustomerNearbySalons customer={customer} />;
       case "profile":

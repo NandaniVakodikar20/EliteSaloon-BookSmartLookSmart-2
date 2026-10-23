@@ -20,7 +20,9 @@ import ResetPassword from "./functional-component/customers-component/ResetPassw
 import CustomerDashboard from "./functional-component/customers-component/CustomerDashboard";
 import CustomerBookingForm from "./functional-component/customers-component/CustomerBookingForm";
 import CustomerServices from "./functional-component/customers-component/CustomerServices";
- import CustomerProducts from "./functional-component/customers-component/CustomerProducts";
+import CustomerProducts from "./functional-component/customers-component/CustomerProducts";
+import CustomerCheckout from "./functional-component/customers-component/CustomerCheckout";
+import OrderConfirmation from "./functional-component/customers-component/OrderConfirmation";
 
 import ForgotPassword from "./functional-component/customers-component/ForgotPassword";
 import ResetOtp from "./functional-component/customers-component/ResetOtp";
@@ -86,7 +88,8 @@ function AppContent() {
     "/services",
     "/products",
     "/ownersubscription",
-  
+    "/checkout",
+    "/order-confirmation",
   ];
 
   const showNavbar = !hideNavbarRoutes.includes(location.pathname);
@@ -109,7 +112,9 @@ function AppContent() {
         <Route path="/customerdashboard" element={<CustomerDashboard />} />
         <Route path="/bookappointment" element={<CustomerBookingForm />} />
         <Route path="/services" element={<CustomerServices />}/>
-<Route path="/products" element ={<CustomerProducts/>}/>
+        <Route path="/products" element={<CustomerProducts/>}/>
+        <Route path="/checkout" element={<CustomerCheckout />} />
+        <Route path="/order-confirmation" element={<OrderConfirmation />} />
         <Route path="/OtpVerify" element={<OtpVerify />} />
 
         <Route path="/selectservices" element={<SelectServices />} />
