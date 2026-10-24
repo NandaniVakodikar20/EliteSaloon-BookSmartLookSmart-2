@@ -1,0 +1,536 @@
+/* src/components/chatbot/ChatbotWidget.css */
+
+/* Floating Launcher Button */
+.elitesalon-chatbot-launcher {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 2px solid #d4af37;
+  color: #d4af37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 99999;
+}
+
+.elitesalon-chatbot-launcher:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 12px 30px rgba(212, 175, 55, 0.4);
+  color: #fff;
+  border-color: #ffd700;
+}
+
+.elitesalon-chatbot-launcher.open {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: #fff;
+}
+
+/* Chat Window Container */
+.elitesalon-chatbot-window {
+  position: fixed;
+  bottom: 95px;
+  right: 24px;
+  width: 390px;
+  max-width: calc(100vw - 32px);
+  height: 580px;
+  max-height: calc(100vh - 120px);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 99999;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  animation: eliteChatSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+@keyframes eliteChatSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Chat Header */
+.elitesalon-chat-header {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #ffffff;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #d4af37;
+}
+
+.elitesalon-chat-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.elitesalon-chat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #d4af37;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.elitesalon-chat-header-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffd700;
+  letter-spacing: 0.3px;
+}
+
+.elitesalon-chat-header-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.elitesalon-chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Language Selector Pills */
+.elitesalon-lang-group {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2px;
+}
+
+.elitesalon-lang-btn {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.elitesalon-lang-btn.active {
+  background: #d4af37;
+  color: #0f172a;
+}
+
+.elitesalon-chat-close-btn {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s ease;
+}
+
+.elitesalon-chat-close-btn:hover {
+  color: #ffffff;
+}
+
+/* Chat Body / Messages Area */
+.elitesalon-chat-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.elitesalon-chat-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.elitesalon-chat-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+/* Message Wrapper */
+.elitesalon-msg-wrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+  animation: eliteMsgFadeIn 0.25s ease-out;
+}
+
+@keyframes eliteMsgFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.elitesalon-msg-wrap.bot {
+  align-self: flex-start;
+}
+
+.elitesalon-msg-wrap.user {
+  align-self: flex-end;
+}
+
+.elitesalon-msg-bubble {
+  padding: 11px 15px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  word-wrap: break-word;
+  white-space: pre-line;
+}
+
+.elitesalon-msg-wrap.bot .elitesalon-msg-bubble {
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-top-left-radius: 3px;
+}
+
+.elitesalon-msg-wrap.user .elitesalon-msg-bubble {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #ffffff;
+  border: 1px solid #d4af37;
+  border-top-right-radius: 3px;
+}
+
+.elitesalon-msg-time {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+.elitesalon-msg-wrap.user .elitesalon-msg-time {
+  text-align: right;
+}
+
+/* Quick Action Chips Container */
+.elitesalon-options-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.elitesalon-option-chip {
+  background: #ffffff;
+  border: 1px solid #d4af37;
+  color: #0f172a;
+  padding: 6px 12px;
+  border-radius: 18px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.elitesalon-option-chip:hover {
+  background: #d4af37;
+  color: #0f172a;
+  border-color: #b89320;
+  transform: translateY(-1px);
+}
+
+.elitesalon-option-chip.primary {
+  background: #0f172a;
+  color: #ffd700;
+  border-color: #ffd700;
+}
+
+.elitesalon-option-chip.primary:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+.elitesalon-option-chip.danger {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.elitesalon-option-chip.danger:hover {
+  background: #dc3545;
+  color: #ffffff;
+}
+
+/* Structured Result Cards inside Messages */
+.elitesalon-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.elitesalon-item-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #d4af37;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.elitesalon-card-title {
+  font-weight: 700;
+  font-size: 13.5px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.elitesalon-card-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.elitesalon-card-badge.status-confirmed,
+.elitesalon-card-badge.status-paid {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.elitesalon-card-badge.status-pending {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.elitesalon-card-badge.status-cancelled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.elitesalon-card-badge.status-completed {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.elitesalon-card-detail {
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.elitesalon-card-price {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.elitesalon-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.elitesalon-card-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.elitesalon-card-btn.action-primary {
+  background: #0f172a;
+  color: #ffd700;
+  border-color: #d4af37;
+}
+
+.elitesalon-card-btn.action-primary:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+.elitesalon-card-btn.action-secondary {
+  background: #ffffff;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+.elitesalon-card-btn.action-secondary:hover {
+  background: #f1f5f9;
+}
+
+.elitesalon-card-btn.action-danger {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.elitesalon-card-btn.action-danger:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* Typing Indicator */
+.elitesalon-typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  width: fit-content;
+}
+
+.elitesalon-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+  animation: eliteTypingBounce 1.4s infinite ease-in-out both;
+}
+
+.elitesalon-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.elitesalon-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes eliteTypingBounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Footer / Input Area */
+.elitesalon-chat-footer {
+  padding: 10px 14px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.elitesalon-chat-footer-controls {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.elitesalon-restart-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.elitesalon-restart-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.elitesalon-chat-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.elitesalon-chat-input:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.elitesalon-send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 1px solid #d4af37;
+  color: #ffd700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.elitesalon-send-btn:hover:not(:disabled) {
+  background: #1e293b;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.elitesalon-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .elitesalon-chatbot-window {
+    width: 94vw;
+    right: 3vw;
+    bottom: 85px;
+    height: 75vh;
+  }
+
+  .elitesalon-chatbot-launcher {
+    bottom: 16px;
+    right: 16px;
+    width: 52px;
+    height: 52px;
+    font-size: 22px;
+  }
+}
