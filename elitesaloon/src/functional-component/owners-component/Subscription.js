@@ -939,7 +939,7 @@ const Subscription = () => {
               confirmButtonColor: "#800020"
             });
 
-            navigate("/owner");
+            navigate("/OwnerLogin");
           } catch (error) {
             console.error(
               "Payment verification error:",
