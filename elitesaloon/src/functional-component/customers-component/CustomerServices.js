@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-import { useNavigate,useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaClock, FaRupeeSign, FaMapMarkerAlt, FaEnvelope } from "react-icons/fa";
 
 import Slider from "react-slick";
@@ -9,28 +9,34 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./CustomerDashboard.css";
 
-
 const CustomerServices = ({ customer, isPreview }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const customerData = location.state?.customer;
 
-    const navigate = useNavigate();
-    const location = useLocation();
-   const customerData = location.state?.customer;
+  const storedCustomer = (() => {
+    try {
+      const stored = localStorage.getItem("customer");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  })();
 
-  const pincode = customer?.customerPincode
-  ? Number(customer.customerPincode)
-  : customerData?.customerPincode
-    ? Number(customerData.customerPincode)
-    : "";
+  const effectiveCustomer = customer || customerData || location.state?.customer || storedCustomer;
 
-
+  const pincode = effectiveCustomer?.customerPincode
+    ? Number(effectiveCustomer.customerPincode)
+    : location.state?.pincode
+      ? Number(location.state.pincode)
+      : "";
 
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(location.state?.salonName || "");
   const [locationFilter, setLocationFilter] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
-
 
   const sliderSettings = {
     dots: true,
@@ -43,41 +49,20 @@ const CustomerServices = ({ customer, isPreview }) => {
     arrows: false,
   };
 
-  // ✅ FETCH SERVICES
+  // FETCH SERVICES
   useEffect(() => {
-    if (!customer?.customerPincode) {
-      setServices([]);
-      setLoading(false);
-      return;
-    }
-
     const fetchServices = async () => {
       try {
         setLoading(true);
 
-        const location = localStorage.getItem("customerLocation");
+        const locationData = localStorage.getItem("customerLocation");
 
-        if(location){
+        if (locationData) {
+          const parsedLocation = JSON.parse(locationData);
+          const latitude = Number(parsedLocation.latitude);
+          const longitude = Number(parsedLocation.longitude);
 
-            const parsedLocation = JSON.parse(location);
-            const latitude = Number(parsedLocation.latitude);
-            const longitude = Number(parsedLocation.longitude);
-
-            if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
-              console.error("Invalid customer coordinates.");
-              return;
-            }
-
-
-            console.log("CUSTOMER CURRENT LOCATION in Services");
-            console.log("Latitude:", latitude);
-            console.log("Longitude:",longitude);
-
-            // setCustomerLocation([
-            //   latitude,
-            //   longitude,
-            // ]);
-
+          if (!Number.isNaN(latitude) && !Number.isNaN(longitude)) {
             const response = await fetch("http://localhost:5000/customer/get-service", {
               method: "POST",
               headers: {
@@ -89,31 +74,46 @@ const CustomerServices = ({ customer, isPreview }) => {
               }),
             });
 
-            if (!response.ok) {
-              throw new Error(
-                `Server error: ${response.status}`
-              );
+            if (response.ok) {
+              const data = await response.json();
+              setServices(data.services || []);
+              setLoading(false);
+              return;
             }
-
-            const data = await response.json();
-            console.log("Nearby Salon Services:", data);
-            setServices(data.services || []);
-        }else{
-
-          console.log("No location found. Searching by pincode:", pincode );
-          
-          const response = await axios.get(
-            `http://localhost:5000/customer/get-service-customer/${pincode}`,
-          );
-          
-           console.log("sERVICES by pincode:", response.data );
-
-            setServices(response.data.services || []);
-
+          }
         }
-  
+
+        if (pincode) {
+          const response = await axios.get(
+            `http://localhost:5000/customer/get-service-customer/${pincode}`
+          );
+          setServices(response.data.services || []);
+          setLoading(false);
+          return;
+        }
+
+        // Fallback for direct /services navigation or guests:
+        // Fetch all verified active services from guest API so the page is never empty!
+        const response = await axios.get("http://localhost:5000/guest/allservices");
+        if (response.data && response.data.success) {
+          let list = response.data.data || [];
+          if (location.state?.salonId) {
+            const filteredBySalon = list.filter(
+              (s) =>
+                s.ownerId &&
+                (String(s.ownerId._id) === String(location.state.salonId) ||
+                  s.ownerId.ownerShopName?.toLowerCase() === location.state?.salonName?.toLowerCase())
+            );
+            if (filteredBySalon.length > 0) {
+              list = filteredBySalon;
+            }
+          }
+          setServices(list);
+        } else {
+          setServices([]);
+        }
       } catch (err) {
-        console.log(err);
+        console.error("Error fetching services in CustomerServices:", err);
         setServices([]);
       } finally {
         setLoading(false);
@@ -121,9 +121,9 @@ const CustomerServices = ({ customer, isPreview }) => {
     };
 
     fetchServices();
-  }, [customer]);
+  }, [customer, pincode, location.state]);
 
-  // ✅ BOOK NOW
+  // BOOK NOW
   const handleBookNow = (service) => {
     navigate("/bookappointment", {
       state: {
@@ -140,7 +140,7 @@ const CustomerServices = ({ customer, isPreview }) => {
     });
   };
 
-  // ✅ FILTER LOGIC
+  // FILTER LOGIC
   const filteredServices = services.filter((service) => {
     const matchSearch =
       service.serviceName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -165,7 +165,7 @@ const CustomerServices = ({ customer, isPreview }) => {
     return matchSearch && matchLocation && matchPrice;
   });
 
-  // ⭐ PREVIEW MODE (ONLY 4 ITEMS)
+  // PREVIEW MODE (ONLY 4 ITEMS)
   const displayServices = isPreview
     ? filteredServices.slice(0, 4)
     : filteredServices;
@@ -260,7 +260,11 @@ const CustomerServices = ({ customer, isPreview }) => {
                       className="service-address"
                       title={`${service.ownerId?.ownerShopStreet || ""}, ${service.ownerId?.ownerShopDistrict || ""}`}
                     >
-                      <FaMapMarkerAlt /> {service.ownerId?.ownerShopStreet ? `${service.ownerId.ownerShopStreet}, ` : ""}{service.ownerId?.ownerShopDistrict || "Location N/A"}
+                      <FaMapMarkerAlt />{" "}
+                      {service.ownerId?.ownerShopStreet
+                        ? `${service.ownerId.ownerShopStreet}, `
+                        : ""}
+                      {service.ownerId?.ownerShopDistrict || "Location N/A"}
                     </span>
                   </div>
                 </div>
@@ -299,7 +303,7 @@ const CustomerServices = ({ customer, isPreview }) => {
             className="view-all-btn"
             onClick={() => navigate("/services")}
           >
-
+            View All Services
           </button>
         </div>
       )}

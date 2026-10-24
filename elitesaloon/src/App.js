@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./functional-component/guest-component/Navbar";
 import GuestHome from "./functional-component/guest-component/GuestHome";
 
-
 //admin
 import AdminLogin from "./functional-component/admin-component/AdminLogin";
 
@@ -29,7 +28,6 @@ import ResetOtp from "./functional-component/customers-component/ResetOtp";
 
 import OtpVerify from "./components/OtpVerify";
 
-
 //customer service
 import SelectServices from "./functional-component/customers-component/SelectServices";
 import RescheduleService from "./functional-component/customers-component/RescheduleService";
@@ -47,7 +45,6 @@ import OwnerResetPassword from "./functional-component/owners-component/OwnerRes
 
 import OwnerAppointmentDetails from "./functional-component/owners-component/OwnerAppointmentDetails";
 
-
 // Admin
 import AdminDashboard from "./functional-component/admin-component/AdminDashboard";
 import StaffOtpVerify from "./functional-component/owners-component/StaffOtpVerify";
@@ -55,6 +52,9 @@ import StaffOtpVerify from "./functional-component/owners-component/StaffOtpVeri
 //Error-pages
 import Unauthorized from "./functional-component/auth-error-pages/Unauthorized";
 import ErrorPage from "./functional-component/auth-error-pages/ErrorPage";
+
+// Chatbot Assistant
+import ChatbotWidget from "./components/chatbot/ChatbotWidget";
 
 function AppContent() {
   const location = useLocation();
@@ -83,7 +83,7 @@ function AppContent() {
     "/ownerresetpassword",
     "bookappointment",
     "/selectservices",
-   "/reschedulservice", 
+    "/reschedulservice", 
     "/appointment-details",
     "/services",
     "/products",
@@ -94,6 +94,19 @@ function AppContent() {
 
   const showNavbar = !hideNavbarRoutes.includes(location.pathname);
 
+  // Hide Chatbot on Owner and Admin portal pages, and error pages
+  const hideChatbotPrefixes = [
+    "/owner",
+    "/admin",
+    "/staff",
+    "/appointment-details",
+    "/unauthorized",
+    "/error",
+  ];
+  const showChatbot = !hideChatbotPrefixes.some((prefix) =>
+    location.pathname.toLowerCase().startsWith(prefix)
+  );
+
   return (
     <>
       {showNavbar && <Navbar />}
@@ -101,7 +114,6 @@ function AppContent() {
       <Routes>
         {/* GUEST */}
         <Route path="/" element={<GuestHome />} />
-    
 
         {/* CUSTOMER */}
         <Route path="/customerregister" element={<CustomerRegistration />} />
@@ -118,7 +130,7 @@ function AppContent() {
         <Route path="/OtpVerify" element={<OtpVerify />} />
 
         <Route path="/selectservices" element={<SelectServices />} />
-        <Route path="/rescheduleservice" element ={<RescheduleService/>}/>
+        <Route path="/rescheduleservice" element={<RescheduleService/>}/>
 
         {/* FORGOT PASSWORD */}
         <Route path="/forgotpassword" element={<ForgotPassword />} />
@@ -148,6 +160,9 @@ function AppContent() {
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/error" element={<ErrorPage />} />
       </Routes>
+
+      {/* Global Customer & Guest Chatbot Assistant */}
+      {showChatbot && <ChatbotWidget />}
     </>
   );
 }
